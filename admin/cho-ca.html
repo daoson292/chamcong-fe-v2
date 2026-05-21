@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chợ Ca & Quản Lý Đơn Từ - Admin Xưởng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../assets/js/utils.js"></script>
+    <style>
+        .hide-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .hide-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans pb-20 relative">
+
+    <nav class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
+        <div class="flex items-center gap-10">
+            <div class="text-xl font-black text-indigo-600 tracking-wide">⚡ XƯỞNG CÁP</div>
+            <div class="hidden md:flex gap-6 font-semibold text-sm">
+                <a href="index.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Tổng Quan</a>
+                <a href="lich-tuan.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Lịch Tuần</a>
+                <a href="cham-cong.html"  class="text-slate-500 hover:text-indigo-600 transition pb-1">Điểm Danh</a>
+                <a href="duyet-cong.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Chốt Ca</a>
+                <a href="cho-ca.html" class="text-indigo-600 border-b-2 border-indigo-600 pb-1">Chợ Ca</a>
+                <a href="chot-luong.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Lương</a>
+                <a href="nhan-su.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Nhân Sự</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 text-sm font-bold">
+            <span>Chào, Sếp Sơn</span>
+            <a href="../login.html" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg transition">Đăng xuất</a>
+        </div>
+    </nav>
+
+    <div class="max-w-[1400px] mx-auto px-4 py-8">
+        
+        <div class="flex flex-wrap justify-between items-end gap-4 mb-8">
+            <div>
+                <h2 class="text-2xl font-bold mb-2">Quản Lý Đợt Đăng Ký (Chợ Ca)</h2>
+                <p class="text-slate-500 text-sm font-semibold">Tạo đợt đăng ký mới hoặc theo dõi các ca làm hiện tại của xưởng.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-white border border-slate-200 p-1 rounded-xl shadow-sm flex gap-1 mr-2">
+                    <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold bg-indigo-50 text-indigo-600 transition">Đang mở (11 - 17/05)</button>
+                    <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold text-slate-500 hover:bg-slate-50 transition">Lịch sử</button>
+                </div>
+                <button id="btnCreateRegistration" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition flex items-center gap-2 text-sm">
+                    <span class="text-xl">+</span> Tạo Đợt Đăng Ký Mới
+                </button>
+            </div>
+        </div>
+
+        <div class="mb-5 flex justify-between items-end">
+            <div>
+                <h3 class="font-bold text-xl text-slate-800">Lưới Giám Sát Của Quản Lý</h3>
+                <p class="text-slate-500 text-sm font-semibold mt-0.5">Bật/tắt ngày làm việc của xưởng và điều chỉnh số người đăng ký dự kiến trong ca.</p>
+            </div>
+            <div class="bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-sm">
+                <span class="text-red-500 text-lg">🔥</span>
+                <div>
+                    <span class="block text-[10px] font-black text-red-700 uppercase leading-tight">Tính năng Chữa cháy</span>
+                    <span class="block text-[10px] font-semibold text-red-600 leading-tight">Tăng slot ở đây sẽ bắn "Ca Hot" lên máy nhân viên</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                <div class="bg-slate-50 border-b border-slate-200 p-4 flex justify-between items-center">
+                    <div>
+                        <div class="font-black text-indigo-700 text-lg">Thứ 2</div>
+                        <div class="text-xs text-slate-500 font-bold mt-0.5">11/05/2026</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer z-20 pointer-events-auto">
+                        <input type="checkbox" class="sr-only peer day-toggle-checkbox" checked>
+                        <div class="relative w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <div class="ml-3 text-sm font-bold w-[75px] select-none">
+                            <span class="text-slate-500 block peer-checked:hidden">Xưởng nghỉ</span>
+                            <span class="text-emerald-600 hidden peer-checked:block">Làm việc</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="flex-1 divide-y divide-slate-100">
+                    <div class="p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-800">CA SÁNG</span>
+                                <span class="bg-indigo-100 text-indigo-700 text-[11px] px-2 py-0.5 rounded font-bold">3 ng</span>
+                            </div>
+                            <button class="text-blue-500 hover:text-blue-700 text-[13px] font-bold btn-edit-shift">✏️ Chỉnh sửa</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-red-50 border border-red-100 text-red-700 px-2.5 py-1 rounded-md text-xs font-semibold">Sơn QL (4h)</span>
+                            <span class="bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold">Tuấn (4h)</span>
+                            <span class="bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold">Khang (3h)</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-800">CA CHIỀU</span>
+                                <span class="bg-amber-100 text-amber-700 text-[11px] px-2 py-0.5 rounded font-bold">4 ng</span>
+                            </div>
+                            <button class="text-blue-500 hover:text-blue-700 text-[13px] font-bold btn-edit-shift">✏️ Chỉnh sửa</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-red-50 border border-red-100 text-red-700 px-2.5 py-1 rounded-md text-xs font-semibold">Sơn QL (4.5h)</span>
+                            <span class="bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold">Hào (4.5h)</span>
+                            <span class="bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold">Đức (4.5h)</span>
+                            <span class="bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold">Lực (4h)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                <div class="bg-slate-50 border-b border-slate-200 p-4 flex justify-between items-center">
+                    <div>
+                        <div class="font-black text-indigo-700 text-lg">Thứ 3</div>
+                        <div class="text-xs text-slate-500 font-bold mt-0.5">12/05/2026</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer z-20 pointer-events-auto">
+                        <input type="checkbox" class="sr-only peer day-toggle-checkbox" checked>
+                        <div class="relative w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <div class="ml-3 text-sm font-bold w-[75px] select-none">
+                            <span class="text-slate-500 block peer-checked:hidden">Xưởng nghỉ</span>
+                            <span class="text-emerald-600 hidden peer-checked:block">Làm việc</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="flex-1 divide-y divide-slate-100">
+                    <div class="p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-800">CA SÁNG</span>
+                                <span class="bg-slate-200 text-slate-600 text-[11px] px-2 py-0.5 rounded font-bold">1 ng</span>
+                            </div>
+                            <button class="text-blue-500 hover:text-blue-700 text-[13px] font-bold btn-edit-shift">✏️ Chỉnh sửa</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-red-50 border border-red-100 text-red-700 px-2.5 py-1 rounded-md text-xs font-semibold">Sơn QL (4h)</span>
+                            <span class="text-slate-400 text-xs font-semibold italic mt-1 ml-1">+ Đang thiếu người...</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-800">CA CHIỀU</span>
+                                <span class="bg-indigo-100 text-indigo-700 text-[11px] px-2 py-0.5 rounded font-bold">3 ng</span>
+                            </div>
+                            <button class="text-blue-500 hover:text-blue-700 text-[13px] font-bold btn-edit-shift">✏️ Chỉnh sửa</button>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-red-50 border border-red-100 text-red-700 px-2.5 py-1 rounded-md text-xs font-semibold">Sơn QL (4.5h)</span>
+                            <span class="bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold">Tuấn (4.5h)</span>
+                            <span class="bg-slate-100 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold">Khang (4.5h)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col relative">
+                <div class="bg-slate-100 border-b border-slate-200 p-4 flex justify-between items-center z-20">
+                    <div>
+                        <div class="font-black text-slate-500 text-lg">Thứ 4</div>
+                        <div class="text-xs text-slate-400 font-bold mt-0.5">13/05/2026</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer z-20 pointer-events-auto">
+                        <input type="checkbox" class="sr-only peer day-toggle-checkbox">
+                        <div class="relative w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        <div class="ml-3 text-sm font-bold w-[75px] select-none">
+                            <span class="text-slate-500 block peer-checked:hidden">Xưởng nghỉ</span>
+                            <span class="text-emerald-600 hidden peer-checked:block">Làm việc</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="absolute inset-x-0 bottom-0 top-[73px] bg-slate-100/60 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center">
+                    <div class="bg-white/95 border border-slate-200 px-5 py-3 rounded-xl shadow-lg text-center transform -translate-y-2">
+                        <div class="text-2xl mb-1">🏖️</div>
+                        <div class="text-red-500 font-bold text-sm uppercase tracking-wide">Xưởng Đóng Cửa</div>
+                        <div class="text-[11px] text-slate-500 font-bold mt-1">Dữ liệu đăng ký được bảo lưu<br>(Không tính lương)</div>
+                    </div>
+                </div>
+
+                <div class="flex-1 divide-y divide-slate-200 opacity-50 select-none pointer-events-none">
+                    <div class="p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="font-bold text-slate-400">CA SÁNG</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-slate-200 border border-slate-300 text-slate-500 px-2.5 py-1 rounded-md text-xs font-semibold line-through">Sơn QL (4h)</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="font-bold text-slate-400">CA CHIỀU</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-slate-200 border border-slate-300 text-slate-500 px-2.5 py-1 rounded-md text-xs font-semibold line-through">Hào (4.5h)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-12 border-t border-slate-200 pt-8">
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+                <div>
+                    <h3 class="font-bold text-xl text-slate-800">Phê Duyệt Đơn Từ & Khiếu Nại</h3>
+                    <p class="text-slate-500 text-sm font-semibold mt-0.5">Xử lý các khiếu nại về giờ giấc, lương bổng hoặc đơn xin nghỉ của nhân viên.</p>
+                </div>
+                
+                <div class="bg-white border border-slate-200 p-1 rounded-xl shadow-sm flex gap-1">
+                    <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold bg-indigo-50 text-indigo-600 transition">Chờ xử lý (3)</button>
+                    <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold text-slate-500 hover:bg-slate-50 transition">Đã duyệt</button>
+                    <button class="tab-btn px-6 py-2 rounded-lg text-sm font-bold text-slate-500 hover:bg-slate-50 transition">Đã hủy</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="requestBoard">
+                
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between req-card">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-amber-50 text-amber-700 border border-amber-100 text-[11px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wide">⚠️ Khiếu nại giờ</span>
+                            <span class="text-slate-400 text-xs font-semibold">12/05 19:30</span>
+                        </div>
+                        <div class="font-bold text-slate-800 text-base">Hoàng Văn Tuấn</div>
+                        <div class="text-xs text-slate-400 font-semibold mb-3">Đóng gói (QC)</div>
+                        <p class="text-sm text-slate-600 bg-slate-50 border border-slate-100 p-3 rounded-lg font-medium italic">"Sếp ơi, ca chiều ngày Thứ 2 (11/05) em làm từ 13:30 đến 18:00 là 4.5 tiếng nhưng hệ thống đang chỉ ghi nhận em làm được có 3.5 tiếng ạ. Sếp check lại giúp em với."</p>
+                    </div>
+                    <div class="flex gap-2 mt-4 border-t border-slate-100 pt-4">
+                        <button class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-bold py-2.5 rounded-lg transition btn-reject">Từ chối</button>
+                        <button class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2.5 rounded-lg transition shadow-sm btn-approve">Duyệt sửa</button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between req-card">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-rose-50 text-rose-700 border border-rose-100 text-[11px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wide">💰 Khiếu nại lương</span>
+                            <span class="text-slate-400 text-xs font-semibold">13/05 08:15</span>
+                        </div>
+                        <div class="font-bold text-slate-800 text-base">Lê Văn Hào</div>
+                        <div class="text-xs text-slate-400 font-semibold mb-3">Nhân viên kho</div>
+                        <p class="text-sm text-slate-600 bg-slate-50 border border-slate-100 p-3 rounded-lg font-medium italic">"Em kiểm tra bảng chốt lương tháng này thấy tính mức lương cơ bản cũ là 45k/h. Đợt trước sếp bảo tăng lên 50k/h từ đầu tháng này rồi ạ. Sếp xem lại giúp em."</p>
+                    </div>
+                    <div class="flex gap-2 mt-4 border-t border-slate-100 pt-4">
+                        <button class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-bold py-2.5 rounded-lg transition btn-reject">Từ chối</button>
+                        <button class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2.5 rounded-lg transition shadow-sm btn-approve">Duyệt sửa</button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between req-card opacity-70 border-dashed">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-slate-100 text-slate-600 border border-slate-200 text-[11px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wide">🏖️ Xin nghỉ phép (Ít dùng)</span>
+                            <span class="text-slate-400 text-xs font-semibold">14/05 10:00</span>
+                        </div>
+                        <div class="font-bold text-slate-800 text-base">Đào Văn Đức</div>
+                        <div class="text-xs text-slate-400 font-semibold mb-3">Đóng gói (QC)</div>
+                        <p class="text-sm text-slate-500 bg-slate-50 border border-slate-100 p-3 rounded-lg font-medium italic">"Em xin nghỉ phép ca sáng ngày thứ 5 tuần sau do nhà có giỗ ạ."</p>
+                    </div>
+                    <div class="flex gap-2 mt-4 border-t border-slate-100 pt-4">
+                        <button class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-bold py-2.5 rounded-lg transition btn-reject" disabled>Từ chối</button>
+                        <button class="flex-1 bg-slate-200 text-slate-400 text-sm font-bold py-2.5 rounded-lg cursor-not-allowed" disabled>Nhắc nhắn tin</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[999] modal-overlay" id="editModal">
+        <div class="bg-white p-6 rounded-2xl w-[450px] shadow-xl border border-slate-200 relative max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
+            <h3 class="font-black text-xl mb-1 text-center text-indigo-700 uppercase tracking-wide">Chỉnh sửa Ca Sáng</h3>
+            <p class="text-sm text-slate-500 mb-6 text-center font-bold">Thứ 2 (11/05/2026)</p>
+            
+            <label class="block text-[13px] font-bold text-slate-600 mb-3">Thêm/Xóa nhân sự và nhập giờ dự kiến:</label>
+            
+            <div class="flex-1 overflow-y-auto hide-scroll pr-2 mb-4 space-y-3">
+                <label class="flex items-center justify-between p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" class="w-5 h-5 accent-indigo-600 rounded" checked>
+                        <span class="font-bold text-slate-800">Sơn (QL)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" class="w-16 bg-white border border-slate-300 text-center text-slate-800 rounded p-1 focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-sm" value="4">
+                        <span class="text-xs font-bold text-slate-400">giờ</span>
+                    </div>
+                </label>
+
+                <label class="flex items-center justify-between p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" class="w-5 h-5 accent-indigo-600 rounded" checked>
+                        <span class="font-bold text-slate-800">Hoàng Văn Tuấn</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" class="w-16 bg-white border border-slate-300 text-center text-slate-800 rounded p-1 focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-sm" value="4">
+                        <span class="text-xs font-bold text-slate-400">giờ</span>
+                    </div>
+                </label>
+
+                <label class="flex items-center justify-between p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" class="w-5 h-5 accent-indigo-600 rounded">
+                        <span class="font-bold text-slate-800">Lê Văn Hào</span>
+                    </div>
+                    <div class="flex items-center gap-2 opacity-50">
+                        <input type="number" class="w-16 bg-slate-100 border border-slate-200 text-center text-slate-400 rounded p-1 outline-none font-bold text-sm" value="0" disabled>
+                        <span class="text-xs font-bold text-slate-400">giờ</span>
+                    </div>
+                </label>
+            </div>
+
+            <div class="flex gap-3 border-t border-slate-100 pt-4">
+                <button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-lg transition btn-close-modal">Hủy bỏ</button>
+                <button class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition btn-close-modal">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[999] modal-overlay" id="registrationSettingsModal">
+        <div class="bg-white rounded-2xl w-[800px] shadow-2xl border border-slate-200 relative max-h-[90vh] flex flex-col overflow-hidden">
+            
+            <!-- HEADER (STEPPER) -->
+            <div class="bg-slate-50 border-b border-slate-200 px-6 py-4 flex justify-between items-center shrink-0">
+                <h3 class="font-black text-lg text-slate-800 flex items-center gap-2">🚀 MỞ ĐỢT ĐĂNG KÝ MỚI</h3>
+                
+                <!-- Stepper UI -->
+                <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider">
+                    <div class="flex items-center gap-1 text-indigo-600">
+                        <span class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center">1</span>
+                        <span>Thông tin</span>
+                    </div>
+                    <div class="w-6 h-[2px] bg-slate-300"></div>
+                    <div class="flex items-center gap-1 text-slate-400">
+                        <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center">2</span>
+                        <span>Hạn chót</span>
+                    </div>
+                    <div class="w-6 h-[2px] bg-slate-300"></div>
+                    <div class="flex items-center gap-1 text-slate-400">
+                        <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-500 flex items-center justify-center">3</span>
+                        <span>Tạo ca (Bulk)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BODY CONTENT (TABS) -->
+            <div class="p-6 overflow-y-auto hide-scroll flex-1 relative bg-white">
+                
+                <!-- STEP 1: THÔNG TIN CHUNG -->
+                <div id="step1" class="space-y-5 block">
+                    <h4 class="font-bold text-slate-700 border-b border-slate-100 pb-2 mb-4">BƯỚC 1: Thông tin chung</h4>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Tên đợt đăng ký <span class="text-red-500">*</span></label>
+                        <input type="text" class="w-full border border-slate-300 rounded-lg p-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" value="Đăng ký ca làm Tuần 3 Tháng 5">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Từ ngày</label>
+                            <input type="date" class="w-full border border-slate-300 rounded-lg p-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" value="2026-05-18">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Đến ngày</label>
+                            <input type="date" class="w-full border border-slate-300 rounded-lg p-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" value="2026-05-24">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Ghi chú cho nhân viên</label>
+                        <textarea class="w-full border border-slate-300 rounded-lg p-3 text-sm font-medium text-slate-600 focus:ring-2 focus:ring-indigo-500 outline-none" rows="2" placeholder="Ví dụ: Tuần này xưởng tăng ca..."></textarea>
+                    </div>
+                </div>
+
+                <!-- STEP 2: CÀI ĐẶT DEADLINE (Ẩn tạm cho Demo) -->
+                <div id="step2" class="space-y-5 hidden">
+                    <h4 class="font-bold text-slate-700 border-b border-slate-100 pb-2 mb-4">BƯỚC 2: Ràng buộc & Hạn chót</h4>
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
+                        <label class="block text-xs font-bold text-amber-800 uppercase mb-2">Giờ khóa cổng đăng ký (Cut-off Time) <span class="text-red-500">*</span></label>
+                        <p class="text-[11px] text-amber-700 mb-3 font-medium">Sau thời điểm này, nhân viên sẽ không thể tự bấm Đăng ký hoặc Hủy ca. Mọi thay đổi phải báo trực tiếp cho Admin.</p>
+                        <input type="datetime-local" class="w-full bg-white border border-amber-300 rounded-lg p-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-amber-500 outline-none shadow-sm" value="2026-05-17T20:00">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Tối đa số ca / Người / Tuần</label>
+                            <input type="number" class="w-full border border-slate-300 rounded-lg p-3 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none" value="12">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: BULK CREATE SHIFTS (Ẩn tạm cho Demo) -->
+                <div id="step3" class="space-y-5 hidden">
+                    <h4 class="font-bold text-slate-700 border-b border-slate-100 pb-2 mb-4">BƯỚC 3: Tạo Mẫu Ca Hàng Loạt (Bulk Create)</h4>
+                    
+                    <!-- Chọn ngày áp dụng -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">1. Áp dụng cho các ngày:</label>
+                        <div class="flex flex-wrap gap-2">
+                            <!-- Toggle Buttons -->
+                            <label class="cursor-pointer">
+                                <input type="checkbox" class="peer sr-only" checked>
+                                <div class="w-10 h-10 rounded-lg border-2 border-slate-200 flex items-center justify-center font-bold text-sm text-slate-400 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white transition">T2</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" class="peer sr-only" checked>
+                                <div class="w-10 h-10 rounded-lg border-2 border-slate-200 flex items-center justify-center font-bold text-sm text-slate-400 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white transition">T3</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" class="peer sr-only" checked>
+                                <div class="w-10 h-10 rounded-lg border-2 border-slate-200 flex items-center justify-center font-bold text-sm text-slate-400 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white transition">T4</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" class="peer sr-only" checked>
+                                <div class="w-10 h-10 rounded-lg border-2 border-slate-200 flex items-center justify-center font-bold text-sm text-slate-400 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white transition">T5</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" class="peer sr-only" checked>
+                                <div class="w-10 h-10 rounded-lg border-2 border-slate-200 flex items-center justify-center font-bold text-sm text-slate-400 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white transition">T6</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" class="peer sr-only" checked>
+                                <div class="w-10 h-10 rounded-lg border-2 border-slate-200 flex items-center justify-center font-bold text-sm text-slate-400 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white transition">T7</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" class="peer sr-only">
+                                <div class="w-10 h-10 rounded-lg border-2 border-slate-200 flex items-center justify-center font-bold text-sm text-slate-400 peer-checked:bg-red-500 peer-checked:border-red-500 peer-checked:text-white transition">CN</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách Mẫu Ca -->
+                    <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-3">2. Cấu hình Ca làm việc cho các ngày trên:</label>
+                        
+                        <!-- Row 1 -->
+                        <div class="flex items-center gap-3 mb-3 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                            <select class="bg-slate-100 border-none font-bold text-sm text-slate-700 rounded-md py-2 outline-none w-[150px]">
+                                <option>☀️ Ca Sáng</option>
+                                <option>🌤️ Ca Chiều</option>
+                                <option>🌙 Ca Tối</option>
+                            </select>
+                            <input type="time" class="border border-slate-200 rounded p-1.5 text-sm font-bold outline-none" value="08:00">
+                            <span class="text-slate-400 font-black">→</span>
+                            <input type="time" class="border border-slate-200 rounded p-1.5 text-sm font-bold outline-none" value="12:00">
+                            
+                            <div class="ml-auto flex items-center gap-2">
+                                <span class="text-[11px] font-bold text-slate-500">Max Slots:</span>
+                                <input type="number" class="w-16 border border-slate-300 rounded text-center font-bold p-1.5 outline-none focus:border-indigo-500" value="5">
+                            </div>
+                            <button class="text-red-400 hover:text-red-600 ml-2">✖</button>
+                        </div>
+
+                        <!-- Row 2 -->
+                        <div class="flex items-center gap-3 mb-3 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                            <select class="bg-slate-100 border-none font-bold text-sm text-slate-700 rounded-md py-2 outline-none w-[150px]">
+                                <option>☀️ Ca Sáng</option>
+                                <option selected>🌤️ Ca Chiều</option>
+                                <option>🌙 Ca Tối</option>
+                            </select>
+                            <input type="time" class="border border-slate-200 rounded p-1.5 text-sm font-bold outline-none" value="13:30">
+                            <span class="text-slate-400 font-black">→</span>
+                            <input type="time" class="border border-slate-200 rounded p-1.5 text-sm font-bold outline-none" value="17:30">
+                            
+                            <div class="ml-auto flex items-center gap-2">
+                                <span class="text-[11px] font-bold text-slate-500">Max Slots:</span>
+                                <input type="number" class="w-16 border border-slate-300 rounded text-center font-bold p-1.5 outline-none focus:border-indigo-500" value="6">
+                            </div>
+                            <button class="text-red-400 hover:text-red-600 ml-2">✖</button>
+                        </div>
+                        
+                        <button class="text-indigo-600 font-bold text-sm flex items-center gap-1 hover:underline mt-2">
+                            <span>+ Thêm ca khác (VD: Ca Tối)</span>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- FOOTER NAVIGATION -->
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 shrink-0 flex justify-between">
+                <button class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 font-bold py-2.5 px-6 rounded-lg transition btn-close-modal">Hủy</button>
+                <div class="flex gap-2">
+                    <button class="bg-slate-200 text-slate-500 font-bold py-2.5 px-6 rounded-lg cursor-not-allowed" id="btnPrevStep" onclick="alert('Demo: Tính năng lùi bước')">Quay lại</button>
+                    <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm" id="btnNextStep" onclick="alert('Demo: Tính năng qua bước tiếp theo')">Tiếp tục ➔</button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[999] modal-overlay" id="rejectModal">
+        <div class="bg-white p-6 rounded-2xl w-[420px] shadow-xl border border-slate-200 relative">
+            <h3 class="font-black text-lg text-slate-800 mb-1 flex items-center gap-2">❌ Từ chối đơn từ / khiếu nại</h3>
+            <p class="text-xs text-red-500 font-bold mb-4" id="rejectEmpName">Nhân viên: ...</p>
+            <label class="block text-[12px] font-bold text-slate-500 uppercase mb-2">Lý do từ chối (Gửi về máy nhân viên):</label>
+            <textarea class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none font-semibold text-sm placeholder-slate-400 mb-4" rows="3" placeholder="Ví dụ: Sếp đã check lại camera..."></textarea>
+            <div class="flex gap-3">
+                <button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-lg transition btn-close-modal">Hủy</button>
+                <button id="confirmReject" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition shadow-sm">Xác nhận từ chối</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TẠO ĐỢT ĐĂNG KÝ (MỚI) -->
+    <div class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[999] modal-overlay" id="createRegistrationModal">
+        <div class="bg-white rounded-2xl w-[600px] shadow-2xl border border-slate-200 relative flex flex-col">
+            <div class="p-6 border-b border-slate-200 bg-slate-50 rounded-t-2xl flex justify-between items-center">
+                <h3 class="font-black text-xl text-slate-800">Tạo Đợt Đăng Ký Mới</h3>
+                <button class="w-8 h-8 bg-slate-200 hover:bg-slate-300 rounded-full text-slate-600 font-bold transition flex items-center justify-center btn-close-modal">✕</button>
+            </div>
+            
+            <div class="p-6">
+                <!-- Chọn ngày -->
+                <div class="mb-6">
+                    <label class="block text-sm font-bold text-slate-700 mb-3">1. Khoảng ngày cho phép đăng ký (Thường là 1 tuần):</label>
+                    <div class="flex items-center gap-3">
+                        <div class="flex flex-col flex-1">
+                            <label class="text-[11px] text-slate-400 font-bold uppercase mb-1">Từ ngày</label>
+                            <input type="date" class="bg-slate-50 border border-slate-200 text-slate-800 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500 font-bold shadow-sm" value="2026-05-11">
+                        </div>
+                        <span class="text-slate-400 mt-5 font-black">→</span>
+                        <div class="flex flex-col flex-1">
+                            <label class="text-[11px] text-slate-400 font-bold uppercase mb-1">Đến ngày</label>
+                            <input type="date" class="bg-slate-50 border border-slate-200 text-slate-800 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500 font-bold shadow-sm" value="2026-05-17">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tính năng Ca Cháy -->
+                <div class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" class="w-5 h-5 accent-red-500" checked>
+                        <div>
+                            <div class="font-bold text-red-700 flex items-center gap-2">Bật tính năng "Ca Hot / Cháy Ca" <span class="text-xl leading-none">🔥</span></div>
+                            <p class="text-xs text-red-600 font-semibold mt-0.5">Tự động bắn thông báo và dán nhãn "Hot" cho các ca thiếu người để thu hút nhân sự.</p>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Options khác -->
+                <div class="space-y-3">
+                    <label class="flex items-center gap-3 cursor-pointer p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                        <input type="checkbox" class="w-5 h-5 accent-indigo-600" checked>
+                        <div>
+                            <div class="font-bold text-slate-700">Tự động duyệt ca</div>
+                            <p class="text-xs text-slate-500 font-semibold">Ưu tiên người đăng ký trước (First come, first served) cho đến khi đầy Slot.</p>
+                        </div>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                        <input type="checkbox" class="w-5 h-5 accent-indigo-600" checked>
+                        <div class="flex-1">
+                            <div class="font-bold text-slate-700">Gửi thông báo Push Notification</div>
+                            <p class="text-xs text-slate-500 font-semibold">Tất cả nhân viên sẽ nhận được thông báo "Đợt đăng ký mới đã mở".</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-slate-200 bg-slate-50 rounded-b-2xl flex gap-3">
+                <button class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 font-bold py-3.5 rounded-xl transition shadow-sm btn-close-modal">Hủy</button>
+                <button id="btnOpenRegistration" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition shadow-md flex items-center justify-center gap-2 text-lg">
+                    🚀 Phát Hành Ngay
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/admin/cho-ca.js"></script>
+    <script src="../assets/js/admin/mobile-nav.js"></script>
+</body>
+</html>

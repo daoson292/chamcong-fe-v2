@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Tuần - Admin Xưởng</title>
+    <!-- Nhúng Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* CSS cho thanh cuộn ngang mượt mà */
+        .hide-scroll::-webkit-scrollbar { height: 8px; }
+        .hide-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        /* Hiệu ứng focus/hover cho ô ca làm */
+        .shift-cell:hover, .shift-cell:focus-within { border-color: #6366f1; background-color: #f8fafc; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans pb-20">
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
+        <div class="flex items-center gap-10">
+            <div class="text-xl font-black text-indigo-600 tracking-wide">⚡ XƯỞNG CÁP</div>
+            <div class="hidden md:flex gap-6 font-semibold text-sm">
+                <a href="index.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Tổng Quan</a>
+                <!-- Thêm tab Lịch Tuần -->
+                <a href="lich-tuan.html" class="text-indigo-600 border-b-2 border-indigo-600 pb-1">Lịch Tuần</a>
+                <a href="cham-cong.html"  class="text-slate-500 hover:text-indigo-600 transition pb-1">Điểm Danh</a>
+                <a href="duyet-cong.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Chốt Ca</a>
+                <a href="cho-ca.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Chợ Ca</a>
+                <a href="chot-luong.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Lương</a>
+                <a href="nhan-su.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Nhân Sự</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 text-sm font-bold">
+            <span>Chào, Sếp Sơn</span>
+            <a href="../login.html" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg transition">Đăng xuất</a>
+        </div>
+    </nav>
+
+    <!-- Content Lịch Tuần -->
+    <div class="max-w-[1400px] mx-auto px-4 py-8">
+        
+        <!-- Header Controls -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-4">
+                <button class="bg-white border border-slate-300 hover:bg-slate-50 px-4 py-2 rounded-lg font-bold shadow-sm transition">&larr; Tuần trước</button>
+                <div class="bg-white border border-slate-300 px-6 py-2 rounded-lg font-black text-indigo-700 shadow-sm flex items-center gap-2">
+                    📅 TUẦN: 04/05/2026 - 10/05/2026
+                </div>
+                <button class="bg-white border border-slate-300 hover:bg-slate-50 px-4 py-2 rounded-lg font-bold shadow-sm transition">Tuần sau &rarr;</button>
+            </div>
+            
+            <button class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 px-6 rounded-lg shadow-sm transition flex items-center gap-2">
+                🖨️ In Lịch Treo Tường
+            </button>
+        </div>
+
+        <!-- BẢNG LỊCH LÀM VIỆC TỔNG THỂ -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-300 overflow-x-auto hide-scroll">
+            <table class="w-full text-center border-collapse min-w-[1200px]">
+                <thead>
+                    <tr class="bg-indigo-800 text-white text-sm uppercase tracking-wide">
+                        <th class="py-4 px-2 border border-slate-300 w-32 font-bold">Ca Làm</th>
+                        <th class="py-4 px-2 border border-slate-300 w-40 font-bold">Thứ 2 (04/05)</th>
+                        <th class="py-4 px-2 border border-slate-300 w-40 font-bold">Thứ 3 (05/05)</th>
+                        <th class="py-4 px-2 border border-slate-300 w-40 font-bold">Thứ 4 (06/05)</th>
+                        <th class="py-4 px-2 border border-slate-300 w-40 font-bold">Thứ 5 (07/05)</th>
+                        <th class="py-4 px-2 border border-slate-300 w-40 font-bold">Thứ 6 (08/05)</th>
+                        <th class="py-4 px-2 border border-slate-300 w-40 font-bold">Thứ 7 (09/05)</th>
+                        <th class="py-4 px-2 border border-slate-300 w-40 font-bold">Chủ Nhật (10/05)</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm font-medium text-slate-700 align-top">
+                    
+                    <!-- CA SÁNG -->
+                    <tr>
+                        <!-- Label Ca -->
+                        <td class="border border-slate-300 bg-indigo-50 font-bold text-indigo-800 align-middle">
+                            <div class="text-base mb-1">SÁNG</div>
+                            <div class="text-xs text-slate-500">(08:00 - 12:00)</div>
+                        </td>
+                        
+                        <!-- Ô Thứ 2 -->
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer transition" onclick="openShiftModal('Sáng Thứ 2', '04/05')">
+                            <!-- Nút Edit luôn hiển thị mờ, rõ lên khi hover -->
+                            <div class="absolute top-2 right-2 text-slate-300 group-hover:text-indigo-600 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </div>
+                            <ol class="list-decimal list-inside space-y-1 mb-3 pr-4">
+                                <li><span class="font-bold text-red-600">Sơn (QL)</span></li>
+                                <li>Tuấn</li>
+                                <li>Lực</li>
+                                <li>Khang</li>
+                            </ol>
+                            <div class="text-[11px] text-red-500 font-bold mt-auto border-t border-slate-200 pt-2">* Tuấn xin đến muộn 30p</div>
+                        </td>
+
+                        <!-- Ô Thứ 3 -->
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer transition" onclick="openShiftModal('Sáng Thứ 3', '05/05')">
+                            <div class="absolute top-2 right-2 text-slate-300 group-hover:text-indigo-600 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </div>
+                            <ol class="list-decimal list-inside space-y-1 mb-3 pr-4">
+                                <li><span class="font-bold text-red-600">Sơn (QL)</span></li>
+                                <li>Hào</li>
+                                <li>Đức</li>
+                            </ol>
+                        </td>
+
+                        <!-- Các ngày khác (Để trống mẫu) -->
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer transition">
+                            <div class="absolute top-2 right-2 text-slate-300 group-hover:text-indigo-600 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            </div>
+                        </td>
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer transition"></td>
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer transition"></td>
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer transition"></td>
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer transition"></td>
+                    </tr>
+                    
+                    <!-- TỔNG KẾT CA SÁNG -->
+                    <tr class="font-bold text-xs">
+                        <td class="border border-slate-300 bg-slate-100 text-slate-600 py-2">Tổng Sáng</td>
+                        <td class="border border-slate-300 bg-green-100 text-green-700 py-2">4 ng</td>
+                        <td class="border border-slate-300 bg-red-100 text-red-600 py-2">3 ng (Thiếu)</td>
+                        <td class="border border-slate-300 bg-slate-50 py-2">0 ng</td>
+                        <td class="border border-slate-300 bg-slate-50 py-2">0 ng</td>
+                        <td class="border border-slate-300 bg-slate-50 py-2">0 ng</td>
+                        <td class="border border-slate-300 bg-slate-50 py-2">0 ng</td>
+                        <td class="border border-slate-300 bg-slate-50 py-2">0 ng</td>
+                    </tr>
+
+                    <!-- CA CHIỀU -->
+                    <tr>
+                        <!-- Label Ca -->
+                        <td class="border border-slate-300 bg-indigo-50 font-bold text-indigo-800 align-middle">
+                            <div class="text-base mb-1">CHIỀU</div>
+                            <div class="text-xs text-slate-500">(13:30 - 18:00)</div>
+                        </td>
+                        
+                        <!-- Ô Thứ 2 -->
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer transition" onclick="openShiftModal('Chiều Thứ 2', '04/05')">
+                            <div class="absolute top-2 right-2 text-slate-300 group-hover:text-indigo-600 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </div>
+                            <ol class="list-decimal list-inside space-y-1 mb-3 pr-4">
+                                <li><span class="font-bold text-red-600">Sơn (QL)</span></li>
+                                <li>Hào</li>
+                                <li>Tuấn</li>
+                                <li>Lực</li>
+                                <li>Khang</li>
+                                <li>Đức</li>
+                            </ol>
+                        </td>
+
+                        <!-- Ô Thứ 3 -->
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer transition" onclick="openShiftModal('Chiều Thứ 3', '05/05')">
+                            <div class="absolute top-2 right-2 text-slate-300 group-hover:text-indigo-600 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </div>
+                            <ol class="list-decimal list-inside space-y-1 mb-3 pr-4">
+                                <li><span class="font-bold text-red-600">Sơn (QL)</span></li>
+                                <li>Tuấn</li>
+                                <li>Lực</li>
+                                <li>Khang</li>
+                            </ol>
+                            <div class="text-[11px] text-red-500 font-bold mt-auto border-t border-slate-200 pt-2">* Hào nghỉ ốm</div>
+                        </td>
+
+                        <!-- Các ngày khác -->
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer hover:bg-slate-50 transition"></td>
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer hover:bg-slate-50 transition"></td>
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer hover:bg-slate-50 transition"></td>
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer hover:bg-slate-50 transition"></td>
+                        <td class="border border-slate-300 p-3 text-left relative shift-cell group cursor-pointer hover:bg-slate-50 transition"></td>
+                    </tr>
+
+                    <!-- TỔNG KẾT CA CHIỀU -->
+                    <tr class="font-bold text-xs">
+                        <td class="border border-slate-300 bg-slate-100 text-slate-600 py-2">Tổng Chiều</td>
+                        <td class="border border-slate-300 bg-yellow-100 text-yellow-700 py-2">6 ng (Hơi đông)</td>
+                        <td class="border border-slate-300 bg-green-100 text-green-700 py-2">4 ng</td>
+                        <td class="border border-slate-300 bg-slate-50 py-2">0 ng</td>
+                        <td class="border border-slate-300 bg-slate-50 py-2">0 ng</td>
+                        <td class="border border-slate-300 bg-slate-50 py-2">0 ng</td>
+                        <td class="border border-slate-300 bg-slate-50 py-2">0 ng</td>
+                        <td class="border border-slate-300 bg-slate-50 py-2">0 ng</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL XẾP LỊCH CA CHI TIẾT (PHIÊN BẢN ĐỒNG BỘ VỚI CHẤM CÔNG) -->
+    <div class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[999] modal-overlay" id="shiftModal">
+        <div class="bg-white rounded-2xl w-[850px] max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 relative">
+            
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50 rounded-t-2xl">
+                <div>
+                    <h3 class="font-black text-2xl text-indigo-700 uppercase tracking-wide" id="shiftModalTitle">Cập nhật Ca Sáng</h3>
+                    <p class="text-sm text-slate-500 font-bold mt-1" id="shiftModalDate">Ngày: Thứ 2 (04/05/2026)</p>
+                </div>
+                <button class="w-8 h-8 bg-slate-200 hover:bg-slate-300 rounded-full text-slate-600 font-bold transition flex items-center justify-center btn-close-modal" onclick="closeShiftModal()">✕</button>
+            </div>
+
+            <!-- Modal Body (Cuộn được nếu đông người) -->
+            <div class="p-6 overflow-y-auto hide-scroll flex-1 bg-white">
+                
+                <!-- Tiêu đề cột (Y hệt tab Chấm Công) -->
+                <div class="grid grid-cols-[200px_1fr_100px] gap-4 mb-2 font-bold text-xs text-slate-500 uppercase border-b border-slate-200 pb-3 pl-2">
+                    <div>Nhân viên</div>
+                    <div>Chi tiết Giờ & Ca làm dự kiến</div>
+                    <div class="text-right">Điều chỉnh</div>
+                </div>
+
+                <!-- DANH SÁCH NHÂN VIÊN TRONG CA -->
+                
+                <!-- Nhân viên 1 -->
+                <div class="grid grid-cols-[200px_1fr_100px] gap-4 items-start border-b border-slate-100 py-5 pl-2">
+                    <div class="flex flex-col gap-1">
+                        <div class="font-bold text-base text-slate-800">Đào Văn Sơn <span class="text-indigo-500 cursor-pointer text-xs ml-1">▶️</span></div>
+                        <span class="bg-indigo-50 text-indigo-600 text-[11px] px-2 py-1 rounded-md w-max font-bold">Đã xếp lịch</span>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 flex items-center flex-wrap gap-3 w-full">
+                            <div class="flex items-center gap-1 text-sm font-bold text-slate-600">
+                                VÀO <span class="text-base">⏱️</span> <input type="time" class="border border-slate-300 rounded p-1 text-sm outline-none focus:border-indigo-500 bg-white" value="08:00">
+                            </div>
+                            <span class="text-slate-400 font-light">➔</span>
+                            <div class="flex items-center gap-1 text-sm font-bold text-slate-600">
+                                RA <span class="text-base">⏱️</span> <input type="time" class="border border-slate-300 rounded p-1 text-sm outline-none focus:border-indigo-500 bg-white" value="12:00">
+                            </div>
+                            <div class="ml-auto font-semibold flex items-center gap-2 text-[13px] text-slate-700">
+                                (45.000đ/h) <button class="text-blue-500 hover:scale-110 transition">🖊️</button>
+                            </div>
+                            <button class="w-6 h-6 rounded-full bg-red-100 text-red-500 flex items-center justify-center hover:bg-red-200 transition">✕</button>
+                        </div>
+                        <button class="border border-dashed border-slate-300 text-slate-500 font-bold py-1 px-4 rounded-lg w-max hover:border-indigo-500 hover:text-indigo-500 transition text-xs">+ Thêm ca</button>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <button class="w-full bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold py-2 rounded-lg transition text-xs shadow-sm">+/- Tiền</button>
+                    </div>
+                </div>
+
+                <!-- Nhân viên 2 (Ví dụ xin về sớm) -->
+                <div class="grid grid-cols-[200px_1fr_100px] gap-4 items-start border-b border-slate-100 py-5 pl-2">
+                    <div class="flex flex-col gap-1">
+                        <div class="font-bold text-base text-slate-800">Hoàng Văn Tuấn</div>
+                        <span class="bg-indigo-50 text-indigo-600 text-[11px] px-2 py-1 rounded-md w-max font-bold">Đã xếp lịch</span>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 flex items-center flex-wrap gap-3 w-full">
+                            <div class="flex items-center gap-1 text-sm font-bold text-slate-600">
+                                VÀO <span class="text-base">⏱️</span> <input type="time" class="border border-slate-300 rounded p-1 text-sm outline-none focus:border-indigo-500 bg-white" value="08:00">
+                            </div>
+                            <span class="text-slate-400 font-light">➔</span>
+                            <div class="flex items-center gap-1 text-sm font-bold text-slate-600">
+                                <!-- Chỉnh sửa giờ dự kiến khác biệt -->
+                                RA <span class="text-base">⏱️</span> <input type="time" class="border border-indigo-300 bg-indigo-50 text-indigo-700 rounded p-1 text-sm outline-none focus:border-indigo-500" value="10:30">
+                            </div>
+                            <div class="ml-auto font-semibold flex items-center gap-2 text-[13px] text-slate-700">
+                                (50.000đ/h) <button class="text-blue-500 hover:scale-110 transition">🖊️</button>
+                            </div>
+                            <button class="w-6 h-6 rounded-full bg-red-100 text-red-500 flex items-center justify-center hover:bg-red-200 transition">✕</button>
+                        </div>
+                        <div class="text-xs text-red-500 font-bold ml-1">Lý do: Xin về sớm đi học</div>
+                        <button class="border border-dashed border-slate-300 text-slate-500 font-bold py-1 px-4 rounded-lg w-max hover:border-indigo-500 hover:text-indigo-500 transition text-xs mt-1">+ Thêm ca</button>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <button class="w-full bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold py-2 rounded-lg transition text-xs shadow-sm">+/- Tiền</button>
+                    </div>
+                </div>
+
+                <!-- Nút Thêm NV xuống dưới cùng -->
+                <div class="mt-6 pl-2">
+                     <button class="w-full border-2 border-dashed border-indigo-200 bg-indigo-50/50 hover:bg-indigo-50 text-indigo-600 font-bold py-4 rounded-xl transition flex items-center justify-center gap-2">
+                        <span class="text-xl">+</span> Bổ sung nhân viên vào ca này
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-slate-200 flex gap-4 bg-slate-50 rounded-b-2xl">
+                <button class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-600 font-bold py-3 rounded-lg transition shadow-sm" onclick="closeShiftModal()">Hủy thay đổi</button>
+                <button class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition shadow-sm" onclick="closeShiftModal()">Lưu lịch dự kiến</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nhúng file JS -->
+    <script src="../assets/js/admin/lich-tuan.js"></script>
+    <script src="../assets/js/admin/mobile-nav.js"></script>
+</body>
+</html>

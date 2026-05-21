@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điểm Danh Đầu Giờ - Admin Xưởng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <style>
+        .hide-scroll::-webkit-scrollbar{height:6px}.hide-scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+        .emp-row{transition:background .2s,border-color .25s}
+        .emp-row.present{background:#f0fdf4;border-color:#86efac}
+        .emp-row.absent{background:#fff1f2;border-color:#fca5a5}
+        .emp-row.present .btn-present{background:#16a34a;color:#fff;box-shadow:0 4px 14px rgba(22,163,74,.35)}
+        .emp-row.absent .btn-absent{background:#dc2626;color:#fff;box-shadow:0 4px 14px rgba(220,38,38,.35)}
+        .shift-block{transition:box-shadow .2s}
+        .shift-block.is-active{box-shadow:0 0 0 2px #6366f1}
+        .shift-block.is-locked .btn-present,.shift-block.is-locked .btn-absent{opacity:.4;pointer-events:none;cursor:not-allowed}
+        .shift-block.is-done .shift-header{background:linear-gradient(135deg,#f0fdf4,#dcfce7)}
+        .progress-fill{transition:width .4s ease}
+        .modal-enter{animation:mIn .22s ease forwards}
+        @keyframes mIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans pb-24">
+
+<!-- NAVBAR -->
+<nav class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
+    <div class="flex items-center gap-10">
+        <div class="text-xl font-black text-indigo-600 tracking-wide">⚡ XƯỞNG CÁP</div>
+        <div class="hidden md:flex gap-6 font-semibold text-sm">
+            <a href="index.html"      class="text-slate-500 hover:text-indigo-600 transition pb-1">Tổng Quan</a>
+            <a href="lich-tuan.html"  class="text-slate-500 hover:text-indigo-600 transition pb-1">Lịch Tuần</a>
+            <a href="cham-cong.html"  class="text-indigo-600 border-b-2 border-indigo-600 pb-1">Điểm Danh</a>
+            <a href="duyet-cong.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Chốt Ca</a>
+            <a href="cho-ca.html"     class="text-slate-500 hover:text-indigo-600 transition pb-1">Chợ Ca</a>
+            <a href="chot-luong.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Lương</a>
+            <a href="nhan-su.html"    class="text-slate-500 hover:text-indigo-600 transition pb-1">Nhân Sự</a>
+        </div>
+    </div>
+    <div class="flex items-center gap-4 text-sm font-bold">
+        <span>Chào, Sếp Sơn</span>
+        <a href="../login.html" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg transition">Đăng xuất</a>
+    </div>
+</nav>
+
+<div class="max-w-4xl mx-auto px-4 py-8">
+
+    <!-- HEADER -->
+    <div class="mb-6">
+        <h2 class="text-2xl font-black text-slate-800 mb-1">📋 Điểm Danh Đầu Giờ</h2>
+        <p class="text-slate-500 text-sm font-semibold">Gọi tên từng người — xác nhận ai có mặt trước khi ca bắt đầu. Không tính tiền ở đây.</p>
+    </div>
+
+    <!-- BỘ LỌC: CHỈ CHỌN NGÀY -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6 flex flex-wrap items-end gap-4">
+        <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-black text-slate-400 uppercase tracking-wider">Ngày điểm danh</label>
+            <input type="date" id="selectedDate" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 font-bold text-sm focus:outline-none focus:border-indigo-500 shadow-sm">
+        </div>
+        <button id="btnLoad" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-md text-sm flex items-center gap-2">
+            🔍 Tải danh sách
+        </button>
+    </div>
+
+    <!-- SUMMARY BAR (ẩn lúc đầu) -->
+    <div id="summaryBar" class="hidden sticky top-[73px] z-40 bg-white/90 backdrop-blur border border-slate-200 rounded-2xl px-5 py-4 shadow-md mb-6 flex-wrap items-center justify-between gap-4">
+        <div class="flex gap-8 flex-wrap">
+            <div class="text-center"><div class="text-2xl font-black text-slate-800" id="sTotal">0</div><div class="text-[10px] font-black text-slate-400 uppercase">Tổng</div></div>
+            <div class="text-center"><div class="text-2xl font-black text-emerald-600" id="sPresent">0</div><div class="text-[10px] font-black text-slate-400 uppercase">Có mặt</div></div>
+            <div class="text-center"><div class="text-2xl font-black text-red-500" id="sAbsent">0</div><div class="text-[10px] font-black text-slate-400 uppercase">Vắng</div></div>
+            <div class="text-center"><div class="text-2xl font-black text-amber-500" id="sPending">0</div><div class="text-[10px] font-black text-slate-400 uppercase">Chưa điểm</div></div>
+        </div>
+        <button id="btnSaveAll" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-md text-sm disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+            💾 Lưu toàn bộ
+        </button>
+    </div>
+
+    <!-- DANH SÁCH (JS render) -->
+    <div id="mainContent">
+        <div class="text-center py-20 text-slate-400">
+            <div class="text-5xl mb-3">📅</div>
+            <p class="font-bold">Chọn ngày và bấm <span class="text-indigo-600">"Tải danh sách"</span></p>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL VẮng -->
+<div class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[999]" id="absentModal">
+    <div class="bg-white rounded-2xl w-[440px] max-w-[95vw] shadow-2xl border border-slate-200 modal-enter">
+        <div class="p-5 border-b border-slate-100 flex items-center gap-3">
+            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-xl">❌</div>
+            <div>
+                <h3 class="font-black text-slate-800">Ghi nhận Vắng Mặt</h3>
+                <p class="text-xs text-slate-500 font-semibold" id="absentEmpName">Nhân viên: ...</p>
+            </div>
+        </div>
+        <div class="p-5">
+            <label class="block text-sm font-black text-slate-700 mb-2">Lý do vắng <span class="text-red-500">*</span></label>
+            <div class="flex flex-wrap gap-2 mb-3" id="quickReasons">
+                <button class="qr bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-300 transition">Nghỉ phép có phép</button>
+                <button class="qr bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-300 transition">Ốm / Bệnh</button>
+                <button class="qr bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-300 transition">Bùng ca (không báo)</button>
+                <button class="qr bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-300 transition">Đến muộn</button>
+                <button class="qr bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-300 transition">Khẩn cấp gia đình</button>
+            </div>
+            <textarea id="absentReason" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-semibold text-sm focus:ring-2 focus:ring-indigo-400 outline-none placeholder-slate-400 resize-none" placeholder="Hoặc nhập lý do..."></textarea>
+            <div class="mt-4 bg-red-50 border border-red-100 rounded-xl p-3">
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" id="applyPenalty" class="w-5 h-5 accent-red-500">
+                    <div>
+                        <p class="text-sm font-black text-red-700">Ghi phạt vắng không phép</p>
+                        <p class="text-xs text-red-500 font-semibold">Sẽ tính khi Chốt Ca cuối ngày</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+        <div class="p-5 border-t border-slate-100 flex gap-3">
+            <button id="cancelAbsent" class="flex-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold py-3 rounded-xl transition">Hủy</button>
+            <button id="confirmAbsent" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition shadow-md">❌ Xác nhận Vắng</button>
+        </div>
+    </div>
+</div>
+
+<script src="../assets/js/admin/cham-cong.js"></script>
+<script src="../assets/js/admin/mobile-nav.js"></script>
+</body>
+</html>

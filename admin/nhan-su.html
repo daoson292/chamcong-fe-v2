@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhân Sự - Admin Xưởng</title>
+    <!-- Nhúng Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <style>
+        .hide-scroll::-webkit-scrollbar { width: 6px; }
+        .hide-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        /* Fix: dropdown không bị cắt bởi overflow-hidden */
+        .table-wrap { border-radius: 0.75rem; border: 1px solid #e2e8f0; overflow: visible; box-shadow: 0 1px 3px 0 rgb(0 0 0/.1); }
+        .table-wrap table { border-collapse: separate; border-spacing: 0; width: 100%; }
+        .table-wrap thead tr th:first-child { border-top-left-radius: 0.75rem; }
+        .table-wrap thead tr th:last-child  { border-top-right-radius: 0.75rem; }
+        .table-wrap tbody tr:last-child td:first-child { border-bottom-left-radius: 0.75rem; }
+        .table-wrap tbody tr:last-child td:last-child  { border-bottom-right-radius: 0.75rem; }
+        /* Dropdown nổi bồng bềnh */
+        .action-dropdown { position: relative; }
+        .action-dropdown-menu {
+            position: absolute; right: 0; top: calc(100% + 6px);
+            min-width: 200px; background: #fff;
+            border: 1px solid #e2e8f0; border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            z-index: 9999;
+            opacity: 0; visibility: hidden; pointer-events: none;
+            transform: scale(0.95) translateY(-4px);
+            transform-origin: top right;
+            transition: opacity .15s, transform .15s, visibility .15s;
+        }
+        .action-dropdown.open .action-dropdown-menu {
+            opacity: 1; visibility: visible; pointer-events: auto;
+            transform: scale(1) translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans pb-20 relative">
+
+    <nav class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
+        <div class="flex items-center gap-10">
+            <div class="text-xl font-black text-indigo-600 tracking-wide">⚡ XƯỞNG CÁP</div>
+            <div class="hidden md:flex gap-6 font-semibold text-sm">
+                <a href="index.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Tổng Quan</a>
+                <a href="lich-tuan.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Lịch Tuần</a>
+                <a href="cham-cong.html"  class="text-slate-500 hover:text-indigo-600 transition pb-1">Điểm Danh</a>
+                <a href="duyet-cong.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Chốt Ca</a>
+                <a href="cho-ca.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Chợ Ca</a>
+                <a href="chot-luong.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Lương</a>
+                <a href="nhan-su.html" class="text-indigo-600 border-b-2 border-indigo-600 pb-1">Nhân Sự</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 text-sm font-bold">
+            <span>Chào, Sếp Sơn</span>
+            <a href="../login.html" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg transition">Đăng xuất</a>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-2 mb-6">
+            <div>
+                <h2 class="text-2xl font-bold mb-1">Danh sách Nhân Sự</h2>
+                <p class="text-slate-500 text-sm font-semibold">Quản lý hồ sơ, tài khoản và lương cơ bản của anh em xưởng.</p>
+            </div>
+            <button id="btnAddUser" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-lg shadow-sm transition flex items-center justify-center gap-2 w-full sm:w-auto shrink-0">
+                <span class="text-xl">+</span> Thêm nhân viên
+            </button>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <input type="text" placeholder="Tìm theo tên hoặc SĐT..." class="w-full sm:flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm">
+            <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                <select class="flex-1 sm:flex-none bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm text-slate-600">
+                    <option value="">Tất cả vị trí</option>
+                    <option value="kho">Kho</option>
+                    <option value="donggoi">Đóng gói (QC)</option>
+                    <option value="parttime">Part-time</option>
+                </select>
+                <select class="flex-1 sm:flex-none bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-semibold text-sm text-slate-600">
+                    <option value="">Đang làm việc</option>
+                    <option value="nghi">Đã ẩn (Đã nghỉ)</option>
+                </select>
+                <button class="w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-6 rounded-lg transition text-sm">Tìm kiếm</button>
+            </div>
+        </div>
+
+        <!-- Bảng Nhân sự -->
+        <div class="table-wrap bg-white">
+            <div class="w-full overflow-x-auto pb-4 hide-scroll">
+                <table class="w-full text-left whitespace-nowrap">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-bold">
+                        <tr>
+                            <th class="py-5 px-4 md:py-4 md:px-6">Họ và Tên</th>
+                            <th class="py-5 px-4 md:py-4 md:px-6">Số điện thoại</th>
+                            <th class="py-5 px-4 md:py-4 md:px-6">Vị trí</th>
+                            <th class="py-5 px-4 md:py-4 md:px-6">Lương / Giờ</th>
+                            <th class="py-5 px-4 md:py-4 md:px-6 text-center">Trạng thái</th>
+                            <th class="py-5 px-4 md:py-4 md:px-6 text-right">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody" class="text-sm font-semibold text-slate-700 divide-y divide-slate-100">
+                    </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CHI TIẾT BẢO MẬT TÀI KHOẢN (MỚI) -->
+    <div class="fixed inset-0 bg-slate-900/40 hidden items-center justify-center z-[999] modal-overlay" id="securityModal">
+        <div class="bg-white p-6 rounded-2xl w-[550px] max-h-[90vh] overflow-y-auto shadow-xl border border-slate-200 relative hide-scroll">
+            <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5"></div>
+            
+            <div class="flex items-center gap-4 mb-6 border-b border-slate-200 pb-4">
+                <div class="w-14 h-14 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-2xl">T</div>
+                <div>
+                    <h3 class="font-bold text-xl text-slate-800">Bảo mật: Hoàng Văn Tuấn</h3>
+                    <p class="text-sm text-slate-500 font-semibold mt-1">SĐT Đăng nhập: <span class="text-slate-700 font-bold">0987.654.321</span></p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <div class="text-[12px] text-slate-500 font-bold uppercase mb-1">Ngày tạo tài khoản</div>
+                    <div class="text-slate-800 font-bold">01/01/2026 - 08:30</div>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <div class="text-[12px] text-slate-500 font-bold uppercase mb-1">Trạng thái đăng nhập</div>
+                    <div class="text-emerald-600 font-bold flex items-center gap-1">🟢 Đang trực tuyến</div>
+                </div>
+            </div>
+
+            <!-- RESET MẬT KHẨU -->
+            <div class="mb-6">
+                <h4 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2">🔑 Đặt lại mật khẩu</h4>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <label class="block text-[13px] font-bold text-slate-600 mb-2">Cấp mật khẩu mới</label>
+                    <div class="flex gap-2 mb-3">
+                        <input type="text" class="flex-1 bg-white border border-slate-300 text-slate-800 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 outline-none font-bold placeholder-slate-400" placeholder="Gõ mật khẩu mới...">
+                        <button class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 rounded-lg transition text-sm">Random</button>
+                    </div>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" class="w-4 h-4 accent-amber-500" checked>
+                        <span class="text-sm font-semibold text-slate-700">Ép nhân viên đổi lại mật khẩu ở lần đăng nhập tới</span>
+                    </label>
+                    <button class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-lg transition mt-4 text-sm shadow-sm">Xác nhận đổi mật khẩu</button>
+                </div>
+            </div>
+
+            <!-- QUẢN LÝ PHIÊN ĐĂNG NHẬP (CHỐNG ZOMBIE SESSIONS) -->
+            <div class="mb-6">
+                <h4 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2">📱 Quản lý thiết bị</h4>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <div>
+                        <div class="font-bold text-sm text-slate-800 mb-1">Đăng xuất từ xa</div>
+                        <div class="text-xs text-slate-500 font-semibold">Thu hồi Token, văng app lập tức khỏi mọi thiết bị đang đăng nhập.</div>
+                    </div>
+                    <button class="bg-red-100 hover:bg-red-200 text-red-600 font-bold py-2 px-4 rounded-lg transition text-sm border border-red-200">Hủy phiên</button>
+                </div>
+            </div>
+
+            <!-- NHẬT KÝ BẢO MẬT (AUDIT LOGS) -->
+            <div class="mb-4">
+                <h4 class="font-bold text-sm text-slate-800 mb-3 flex items-center gap-2">📜 Nhật ký bảo mật gần đây</h4>
+                <div class="bg-slate-50 rounded-lg border border-slate-200 p-3 text-sm">
+                    <div class="flex justify-between items-start py-2 border-b border-slate-200 border-dashed">
+                        <div>
+                            <span class="text-slate-800 font-bold block mb-0.5">Admin (Sếp Sơn) đã đặt lại mật khẩu</span>
+                            <span class="text-slate-400 text-[11px] font-semibold">IP: 192.168.1.55</span>
+                        </div>
+                        <span class="text-slate-500 font-semibold text-xs">15/04/2026 14:20</span>
+                    </div>
+                    <div class="flex justify-between items-start py-2">
+                        <div>
+                            <span class="text-emerald-600 font-bold block mb-0.5">Đăng nhập thành công trên iPhone 14</span>
+                            <span class="text-slate-400 text-[11px] font-semibold">IP: 113.190.22.1</span>
+                        </div>
+                        <span class="text-slate-500 font-semibold text-xs">12/04/2026 07:45</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-lg transition btn-close-modal mt-2">Đóng</button>
+        </div>
+    </div>
+
+    <!-- MODAL THÊM / SỬA HỒ SƠ -->
+    <div class="fixed inset-0 bg-slate-900/40 hidden items-center justify-center z-[999] modal-overlay" id="userModal">
+        <div class="bg-white rounded-2xl w-[600px] max-h-[90vh] shadow-xl border border-slate-200 relative flex flex-col overflow-hidden">
+
+            <div class="px-6 pt-6 pb-0 border-b border-slate-200 bg-white z-10">
+                <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
+                <h3 class="font-bold text-xl text-center text-slate-800 mb-4" id="modalTitle">Thêm / Sửa nhân viên</h3>
+
+                <div class="flex gap-6 text-sm font-bold" id="userTabs">
+                    <button class="pb-3 text-indigo-600 border-b-2 border-indigo-600 px-1 tab-btn transition" data-target="tab-profile">Hồ sơ cá nhân</button>
+                    <button class="pb-3 text-slate-400 hover:text-slate-600 px-1 tab-btn transition" data-target="tab-permissions">Phân quyền hệ thống</button>
+                </div>
+            </div>
+
+            <div class="p-6 overflow-y-auto hide-scroll flex-1 bg-white">
+
+                <div id="tab-profile" class="tab-content block animate-fade-in">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-[13px] font-bold text-slate-600 mb-2">Họ và Tên <span class="text-red-500">*</span></label>
+                            <input type="text" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none placeholder-slate-400 font-semibold" value="Hoàng Văn Tuấn">
+                        </div>
+                        <div>
+                            <label class="block text-[13px] font-bold text-slate-600 mb-2">Số điện thoại <span class="text-red-500">*</span></label>
+                            <input type="text" id="phoneInput" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none placeholder-slate-400 font-semibold" value="0987.654.321">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-[13px] font-bold text-slate-600 mb-2">Tên ngân hàng</label>
+                            <input type="text" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none placeholder-slate-400 font-semibold" value="MB Bank">
+                        </div>
+                        <div>
+                            <label class="block text-[13px] font-bold text-slate-600 mb-2">Số tài khoản</label>
+                            <input type="text" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none placeholder-slate-400 font-semibold" value="88889999">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-[13px] font-bold text-slate-600 mb-2">Vị trí công việc</label>
+                            <select class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none font-semibold">
+                                <option>Nhân viên kho</option>
+                                <option>Đóng gói (QC)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[13px] font-bold text-slate-600 mb-2">Lương / Giờ (đ)</label>
+                            <input type="number" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-indigo-600" value="50000">
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="block text-[13px] font-bold text-slate-600 mb-2">Ghi chú nội bộ</label>
+                        <textarea class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none placeholder-slate-400 font-semibold text-sm" rows="2">Hay xin về sớm.</textarea>
+                    </div>
+                </div>
+
+                <div id="tab-permissions" class="tab-content hidden animate-fade-in">
+
+                    <div class="mb-5 bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 items-start">
+                        <div class="text-amber-500 text-xl">🔒</div>
+                        <div>
+                            <h4 class="font-bold text-amber-800 text-sm">Chế độ an toàn đang bật</h4>
+                            <p class="text-xs text-amber-700 mt-1 font-semibold">Hiện tại tài khoản nhân viên chỉ được cấp quyền "Xem". Quyền Thêm/Sửa/Xóa bị khóa và chỉ có Sếp (Super Admin) mới thực hiện được.</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-[13px] font-bold text-slate-600 mb-2">Nhóm tài khoản</label>
+                        <select class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none font-semibold">
+                            <option value="employee">Nhân viên bình thường (Dùng App Mobile)</option>
+                            <option value="manager" selected>Quản lý xưởng (Được vào giao diện Admin)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <h4 class="font-bold text-sm text-slate-800 mb-3 border-b border-slate-200 pb-2">👥 Quản lý Nhân sự</h4>
+                            <div class="flex gap-5">
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="w-4 h-4 accent-indigo-600" checked> <span class="text-sm font-semibold text-slate-700">Xem danh sách</span></label>
+                                <label class="flex items-center gap-2 opacity-40 cursor-not-allowed" title="Bị khóa để an toàn"><input type="checkbox" class="w-4 h-4" disabled> <span class="text-sm font-semibold text-slate-500">Thêm / Sửa</span></label>
+                                <label class="flex items-center gap-2 opacity-40 cursor-not-allowed" title="Bị khóa để an toàn"><input type="checkbox" class="w-4 h-4" disabled> <span class="text-sm font-semibold text-slate-500">Ẩn / Khóa</span></label>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <h4 class="font-bold text-sm text-slate-800 mb-3 border-b border-slate-200 pb-2">⏰ Chấm công & Lịch làm</h4>
+                            <div class="flex flex-wrap gap-5">
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="w-4 h-4 accent-indigo-600" checked> <span class="text-sm font-semibold text-slate-700">Xem Lịch tuần</span></label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="w-4 h-4 accent-indigo-600" checked> <span class="text-sm font-semibold text-slate-700">Xem Chấm công</span></label>
+                                <label class="flex items-center gap-2 opacity-40 cursor-not-allowed" title="Bị khóa để an toàn"><input type="checkbox" class="w-4 h-4" disabled> <span class="text-sm font-semibold text-slate-500">Sửa giờ ca</span></label>
+                                <label class="flex items-center gap-2 opacity-40 cursor-not-allowed" title="Bị khóa để an toàn"><input type="checkbox" class="w-4 h-4" disabled> <span class="text-sm font-semibold text-slate-500">Duyệt ca</span></label>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <h4 class="font-bold text-sm text-slate-800 mb-3 border-b border-slate-200 pb-2">💰 Bảng lương</h4>
+                            <div class="flex gap-5">
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="w-4 h-4 accent-indigo-600" checked> <span class="text-sm font-semibold text-slate-700">Xem bảng lương</span></label>
+                                <label class="flex items-center gap-2 opacity-40 cursor-not-allowed" title="Bị khóa để an toàn"><input type="checkbox" class="w-4 h-4" disabled> <span class="text-sm font-semibold text-slate-500">Sửa lương / Thưởng</span></label>
+                                <label class="flex items-center gap-2 opacity-40 cursor-not-allowed" title="Bị khóa để an toàn"><input type="checkbox" class="w-4 h-4" disabled> <span class="text-sm font-semibold text-slate-500">Chốt thanh toán</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="p-5 border-t border-slate-200 bg-slate-50 flex gap-3 z-10">
+                <button class="flex-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold py-3 rounded-xl transition btn-close-modal">Hủy bỏ</button>
+                <button id="btnSaveEmployee" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-sm flex items-center justify-center gap-2">💾 Lưu & Cấp Tài Khoản</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL BÀN GIAO TÀI KHOẢN (CREDENTIALS HANDOVER) -->
+    <div class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[1000]" id="credentialsModal">
+        <div class="bg-white rounded-2xl w-[460px] max-w-[95vw] shadow-2xl border border-slate-200" style="animation: credIn .25s ease forwards">
+
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-100 text-center">
+                <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">🎉</div>
+                <h3 class="font-black text-lg text-slate-800" id="credTitle">Đã tạo tài khoản!</h3>
+                <p class="text-sm text-slate-500 font-semibold mt-1" id="credSubtitle">Vui lòng bàn giao thông tin đăng nhập cho nhân viên.</p>
+            </div>
+
+            <!-- Credentials Box -->
+            <div class="p-6">
+                <div class="bg-gradient-to-br from-indigo-50 to-slate-50 border-2 border-indigo-200 rounded-2xl p-5 mb-4">
+                    <div class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-3">Thông tin đăng nhập</div>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-[11px] font-bold text-slate-400 uppercase mb-0.5">Tài khoản (SĐT)</div>
+                                <div class="font-black text-slate-800 text-lg tracking-wide" id="credUsername">—</div>
+                            </div>
+                            <button onclick="copySingle('credUsername')" class="p-2 rounded-lg hover:bg-indigo-100 text-indigo-500 transition" title="Copy">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </button>
+                        </div>
+                        <div class="h-px bg-indigo-100"></div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-[11px] font-bold text-slate-400 uppercase mb-0.5">Mật khẩu tạm</div>
+                                <div class="font-black text-indigo-600 text-2xl tracking-[0.15em]" id="credPassword">—</div>
+                            </div>
+                            <button onclick="copySingle('credPassword')" class="p-2 rounded-lg hover:bg-indigo-100 text-indigo-500 transition" title="Copy">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tip box -->
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 flex gap-2">
+                    <span class="text-amber-500 shrink-0">⚠️</span>
+                    <p class="text-xs text-amber-700 font-semibold">Mật khẩu này chỉ hiển thị <strong>một lần duy nhất</strong>. Hãy gửi cho nhân viên ngay bây giờ qua Zalo/Tin nhắn.</p>
+                </div>
+
+                <!-- Nút Copy cả bộ -->
+                <button id="btnCopyAll" onclick="copyCredentials()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3.5 rounded-xl transition shadow-md text-sm flex items-center justify-center gap-2 mb-3">
+                    📋 Copy thông tin đăng nhập (Gửi qua Zalo)
+                </button>
+                <button onclick="closeCredentialsModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl transition text-sm">
+                    ✅ Đã gửi — Đóng lại
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    @keyframes credIn { from{opacity:0;transform:scale(.93) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
+    </style>
+
+    <!-- Script sẽ dùng UIUtils.showAlert và UIUtils.showConfirm từ utils.js -->
+
+    <script>
+    // Toggle dropdown click-based (fix clipping)
+    function toggleDropdown(el) {
+        const isOpen = el.classList.contains('open');
+        document.querySelectorAll('.action-dropdown.open').forEach(d => d.classList.remove('open'));
+        if (!isOpen) el.classList.add('open');
+    }
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.action-dropdown')) {
+            document.querySelectorAll('.action-dropdown.open').forEach(d => d.classList.remove('open'));
+        }
+    });
+
+    // ── ONBOARDING: AUTO-GEN PASSWORD & CREDENTIALS MODAL ─────────────────
+    // Runtime patch: gán id=nameInput và thêm helper text (encoding workaround)
+    (function patchForm() {
+        const tabProfile = document.getElementById('tab-profile');
+        if (!tabProfile) return;
+        // Tìm tất cả input text trong tab-profile
+        const inputs = tabProfile.querySelectorAll('input[type="text"]');
+        if (inputs.length >= 1 && !inputs[0].id) {
+            inputs[0].id = 'nameInput';
+            inputs[0].value = '';
+            inputs[0].placeholder = 'Vi du: Nguyen Van A';
+        }
+        if (inputs.length >= 2) {
+            const phoneEl = inputs[1].id === 'phoneInput' ? inputs[1] : Array.from(inputs).find(i => i.id === 'phoneInput');
+            if (phoneEl && !phoneEl.nextElementSibling?.classList.contains('helper-text')) {
+                phoneEl.value = '';
+                phoneEl.placeholder = '0987 654 321';
+                const helper = document.createElement('p');
+                helper.className = 'helper-text text-[11px] text-slate-400 font-semibold mt-1.5';
+                helper.innerHTML = '\uD83D\uDD11 S\u0110T n\u00e0y s\u1EBD \u0111\u01B0\u1EE3c d\u00f9ng l\u00e0m <strong class="text-slate-500">T\u00e0i kho\u1EA3n \u0111\u0103ng nh\u1EADp</strong> cho nh\u00e2n vi\u00ean';
+                phoneEl.parentNode.insertBefore(helper, phoneEl.nextSibling);
+            }
+        }
+    })();
+
+    let _credData = { name: '', username: '', password: '' };
+
+    /** Sinh mật khẩu ngẫu nhiên 6-8 ký tự: chữ hoa + thường + số */
+    function generatePassword() {
+        const upper  = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        const lower  = 'abcdefghjkmnpqrstuvwxyz';
+        const digits = '23456789';
+        const all    = upper + lower + digits;
+        const len    = Math.floor(Math.random() * 3) + 6; // 6-8
+        let pw = '';
+        // Đảm bảo có ít nhất 1 hoa, 1 thường, 1 số
+        pw += upper[Math.floor(Math.random() * upper.length)];
+        pw += lower[Math.floor(Math.random() * lower.length)];
+        pw += digits[Math.floor(Math.random() * digits.length)];
+        for (let i = 3; i < len; i++)
+            pw += all[Math.floor(Math.random() * all.length)];
+        // Shuffle
+        return pw.split('').sort(() => Math.random() - 0.5).join('');
+    }
+
+    // Đã thay openCredentialsModal bằng logic inline ở btnSaveEmployee
+
+    function closeCredentialsModal() {
+        const m = document.getElementById('credentialsModal');
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+    }
+
+    /** Copy toàn bộ credentials dạng text chuẩn gửi Zalo */
+    function copyCredentials() {
+        const text = [
+            '🔐 THÔNG TIN ĐĂNG NHẬP ỨNG DỤNG XƯỞNG CÁP',
+            '──────────────────────────',
+            '👤 Tài khoản:  ' + _credData.username,
+            '🔑 Mật khẩu:  ' + _credData.password,
+            '──────────────────────────',
+            '⚠️ Vui lòng đổi mật khẩu sau lần đăng nhập đầu tiên!',
+        ].join('\n');
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.getElementById('btnCopyAll');
+            btn.innerHTML = '✅ Đã copy! Paste vào Zalo và gửi đi';
+            btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+            btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        }).catch(() => { alert('Copy thất bại. Hãy copy thủ công: ' + text); });
+    }
+
+    /** Copy riêng lẻ từng trường */
+    function copySingle(fieldId) {
+        const text = document.getElementById(fieldId).textContent;
+        navigator.clipboard.writeText(text);
+    }
+
+    /** Nút Lưu & Cấp Tài Khoản */
+    document.getElementById('btnSaveEmployee').addEventListener('click', async function() {
+        const nameEl  = document.getElementById('nameInput');
+        const phoneEl = document.getElementById('phoneInput');
+        const roleEl  = document.getElementById('roleInput'); // Nếu có
+        const name    = nameEl ? nameEl.value.trim() : 'Nhân viên mới';
+        const phone   = phoneEl ? phoneEl.value.trim() : '';
+        const role    = roleEl ? roleEl.value : 'employee';
+
+        // Validation đơn giản
+        if (!name) {
+            if (nameEl) { nameEl.style.borderColor = '#ef4444'; nameEl.focus(); }
+            return;
+        }
+        if (!phone) {
+            if (phoneEl) { phoneEl.style.borderColor = '#ef4444'; phoneEl.focus(); }
+            return;
+        }
+
+        // Reset border
+        if (nameEl)  nameEl.style.borderColor  = '';
+        if (phoneEl) phoneEl.style.borderColor = '';
+
+        // Tạo password random
+        const pw = generatePassword();
+
+        try {
+            // Gọi API
+            const res = await ApiClient.post('/users', {
+                fullName: name,
+                phone: phone,
+                password: pw,
+                role: role
+            });
+
+            if (res) {
+                // Đóng modal Thêm NV
+                const userModal = document.getElementById('userModal');
+                if (userModal) { userModal.classList.add('hidden'); userModal.classList.remove('flex'); }
+
+                // Mở Credentials Handover Modal (pass luôn mật khẩu đã tạo)
+                _credData = { name, username: phone, password: pw };
+                document.getElementById('credTitle').textContent    = 'Đã tạo tài khoản cho ' + name + '!';
+                document.getElementById('credSubtitle').textContent = 'Bàn giao thông tin đăng nhập bên dưới cho nhân viên.';
+                document.getElementById('credUsername').textContent = phone;
+                document.getElementById('credPassword').textContent = pw;
+                
+                // Reset nút copy
+                const copyBtn = document.getElementById('btnCopyAll');
+                copyBtn.innerHTML = '📋 Copy thông tin đăng nhập (Gửi qua Zalo)';
+                copyBtn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+                copyBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                
+                const m = document.getElementById('credentialsModal');
+                m.classList.remove('hidden');
+                m.classList.add('flex');
+
+                // Reload lại bảng User
+                if (typeof loadUsers === 'function') {
+                    loadUsers();
+                }
+            }
+        } catch (err) {
+            // Lỗi đã được xử lý trong ApiClient
+            console.error('Lỗi tạo nhân viên', err);
+        }
+    });
+
+    </script>
+    <script src="../assets/js/admin/nhan-su.js"></script>
+    <script src="../assets/js/admin/mobile-nav.js"></script>
+</body>
+</html>

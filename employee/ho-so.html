@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hồ Sơ - App Nhân Viên</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hide-scroll::-webkit-scrollbar { display: none; }
+    </style>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/utils.js"></script>
+</head>
+<body class="bg-slate-200 text-slate-800 font-sans flex justify-center">
+
+    <div class="w-full max-w-md bg-slate-50 min-h-screen relative shadow-2xl pb-24 overflow-x-hidden flex flex-col">
+        
+        <!-- HEADER -->
+        <header class="bg-indigo-600 text-white px-5 py-4 sticky top-0 z-40 flex justify-between items-center shadow-md">
+            <div>
+                <h1 class="font-black text-lg tracking-wide">⚡ XƯỞNG CÁP</h1>
+                <p class="text-[11px] font-medium opacity-80">Hồ sơ cá nhân</p>
+            </div>
+            <button class="relative p-2">
+                <span class="text-2xl">⚙️</span>
+            </button>
+        </header>
+
+        <!-- THÔNG TIN CHUNG (AVATAR & TÊN) -->
+        <div class="bg-white p-6 rounded-b-3xl shadow-sm flex flex-col items-center border-b border-slate-200">
+            <div id="empAvatar" class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-3xl font-black mb-3 border-4 border-white shadow-md">
+                ?
+            </div>
+            <h2 id="empFullName" class="text-xl font-bold text-slate-800">Đang tải...</h2>
+            <span id="empRole" class="bg-slate-100 text-slate-500 text-xs font-bold px-3 py-1 rounded-full mt-1 border border-slate-200">Đang tải...</span>
+            <div class="flex items-center gap-2 mt-3 text-slate-500 font-semibold text-sm">
+                <span>📱 <span id="empPhone">Đang tải...</span></span>
+            </div>
+        </div>
+
+        <!-- THÔNG TIN THANH TOÁN (READ-ONLY) -->
+        <div class="p-4 mt-2">
+            <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide px-1 mb-3">Thông tin nhận lương</h3>
+            
+            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm relative overflow-hidden">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500"></div>
+                
+                <div class="mb-4">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Ngân hàng</label>
+                    <div id="empBankName" class="bg-slate-50 border border-slate-100 rounded-lg p-3 text-sm font-bold text-slate-700">
+                        Chưa cập nhật
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Số tài khoản</label>
+                    <div id="empBankAccount" class="bg-slate-50 border border-slate-100 rounded-lg p-3 text-sm font-bold text-slate-700 tracking-wider">
+                        Chưa cập nhật
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-100 flex gap-2 items-start">
+                    <span class="text-amber-500 text-sm">⚠️</span>
+                    <p class="text-[11px] text-amber-700 font-semibold">Nếu thông tin trên bị sai, hãy báo ngay cho Quản lý để sửa lại trước kỳ chốt lương.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- BẢO MẬT TÀI KHOẢN -->
+        <div class="p-4 pt-0">
+            <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide px-1 mb-3">Tài khoản & Bảo mật</h3>
+            
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <button class="w-full flex justify-between items-center p-4 border-b border-slate-100 hover:bg-slate-50 transition btn-open-pwd">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">🔑</span>
+                        <span class="font-bold text-sm text-slate-700">Đổi mật khẩu</span>
+                    </div>
+                    <span class="text-slate-400">➔</span>
+                </button>
+                
+                <button id="btnLogout" class="w-full flex justify-between items-center p-4 hover:bg-red-50 transition">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">🚪</span>
+                        <span class="font-bold text-sm text-red-500">Đăng xuất</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAV (4 nút) -->
+        <nav class="bg-white border-t border-slate-200 fixed bottom-0 w-full max-w-md flex justify-between px-6 py-3 pb-6 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <a href="index.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-500 transition">
+                <span class="text-xl">🏠</span><span class="text-[10px] font-bold mt-1">Trang chủ</span>
+            </a>
+            <a href="lich.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-500 transition relative">
+                <span class="text-xl">📅</span><span class="text-[10px] font-bold mt-1">Chợ Ca</span>
+            </a>
+            <a href="luong.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-500 transition relative">
+                <span class="text-xl">💰</span><span class="text-[10px] font-bold mt-1">Bảng Lương</span>
+            </a>
+            <a href="ho-so.html" class="flex flex-col items-center gap-1 text-indigo-600 transition">
+                <span class="text-xl">👤</span>
+                <span class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-indigo-600 rounded-full"></span>
+                <span class="text-[10px] font-bold mt-1">Hồ Sơ</span>
+            </a>
+        </nav>
+
+        <!-- MODAL ĐỔI MẬT KHẨU -->
+        <div class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 px-4 modal-overlay" id="pwdModal">
+            <div class="bg-white w-full rounded-2xl p-5 relative shadow-2xl transform scale-95 transition-transform duration-200" id="pwdBox">
+                <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
+                <h3 class="font-bold text-lg text-slate-800 mb-5 text-center">Đổi mật khẩu</h3>
+                
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Mật khẩu hiện tại</label>
+                        <input type="password" id="currentPasswordInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold text-slate-800 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="••••••••">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Mật khẩu mới</label>
+                        <input type="password" id="newPasswordInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold text-slate-800 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="••••••••">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Nhập lại mật khẩu mới</label>
+                        <input type="password" id="confirmPasswordInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold text-slate-800 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl transition text-sm btn-close-modal">Hủy</button>
+                    <button class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition text-sm shadow-sm" id="btnSubmitPwd">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NỐI JS -->
+    <script src="../assets/js/employee/ho-so.js"></script>
+</body>
+</html>

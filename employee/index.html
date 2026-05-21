@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard - App Nhân Viên</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hide-scroll::-webkit-scrollbar { display: none; }
+
+        /* ===== HOLD-TO-CONFIRM BUTTON ===== */
+        #holdBtn {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: none;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.15s ease, box-shadow 0.3s ease;
+        }
+        #holdBtn:active { transform: scale(0.96); }
+
+        /* SVG Progress Ring */
+        #holdBtn .ring-track {
+            fill: none;
+            stroke: rgba(255,255,255,0.25);
+            stroke-width: 7;
+        }
+        #holdBtn .ring-progress {
+            fill: none;
+            stroke: #ffffff;
+            stroke-width: 7;
+            stroke-linecap: round;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 0.05s linear;
+            transform-origin: center;
+            transform: rotate(-90deg);
+        }
+
+        /* Trạng thái Radar (đang trong ca) */
+        .btn-checkout {
+            background: linear-gradient(to bottom, #34d399, #059669);
+            box-shadow: 0 0 0 0 rgba(16,185,129,0.7);
+            animation: radarPulse 2s infinite;
+        }
+        @keyframes radarPulse {
+            0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
+            70%  { box-shadow: 0 0 0 22px rgba(16,185,129,0); }
+            100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+        }
+
+        /* Trạng thái Đang Giữ (Pressing) */
+        .btn-pressing {
+            background: linear-gradient(to bottom, #f59e0b, #d97706) !important;
+            animation: none !important;
+            box-shadow: 0 8px 25px rgba(245,158,11,0.45) !important;
+        }
+
+        /* Trạng thái PENDING (Chờ duyệt) */
+        .btn-pending {
+            background: linear-gradient(to bottom, #f59e0b, #d97706) !important;
+            animation: none !important;
+            box-shadow: 0 8px 20px rgba(245,158,11,0.3) !important;
+            opacity: 0.85;
+            cursor: not-allowed;
+        }
+
+        /* Trạng thái Check-in (Chưa vào ca) */
+        .btn-checkin {
+            background: linear-gradient(to bottom, #6366f1, #4338ca);
+            box-shadow: 0 8px 25px rgba(99,102,241,0.4);
+            animation: none;
+        }
+
+        /* Ripple effect */
+        .btn-content { pointer-events: none; }
+    </style>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/api.js"></script>
+</head>
+<body class="bg-slate-200 text-slate-800 font-sans flex justify-center">
+
+    <div class="w-full max-w-md bg-slate-50 min-h-screen relative shadow-2xl pb-24 overflow-x-hidden flex flex-col">
+        
+        <!-- HEADER PROFILE -->
+        <header class="bg-indigo-600 text-white px-5 py-4 sticky top-0 z-40 shadow-md rounded-b-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-3">
+                    <img id="empAvatar" src="https://ui-avatars.com/api/?name=NV&background=c7d2fe&color=3730a3&bold=true" alt="Avatar" class="w-10 h-10 rounded-full border-2 border-indigo-300">
+                    <div>
+                        <h1 id="empFullName" class="font-black text-sm tracking-wide">Đang tải...</h1>
+                        <p id="empRole" class="text-[11px] font-medium opacity-80">Nhân viên</p>
+                    </div>
+                </div>
+                <button class="relative p-2 bg-indigo-700/50 rounded-full hover:bg-indigo-700 transition" id="btnNotification">
+                    <span class="text-lg">🔔</span>
+                    <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-indigo-600 rounded-full animate-pulse"></span>
+                </button>
+            </div>
+
+            <!-- CARD LƯƠNG & STREAK -->
+            <div class="bg-white text-slate-800 rounded-xl p-4 shadow-lg absolute left-5 right-5 -bottom-20 z-10 border border-slate-100">
+                <div class="flex justify-between items-end mb-2">
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-0.5" id="salaryMonthTitle">Lương tạm tính</p>
+                        <p class="text-2xl font-black text-emerald-600"><span id="tempSalary">0</span><span class="text-sm font-bold text-slate-400">đ</span></p>
+                    </div>
+                    <div class="bg-orange-50 px-2 py-1.5 rounded-lg flex flex-col items-center border border-orange-100" title="Chuỗi đi làm đúng giờ">
+                        <span class="text-orange-500 text-lg leading-none mb-0.5">🔥</span>
+                        <span class="text-[10px] font-black text-orange-600" id="streakCount">0 Ca</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-[10px] font-bold text-slate-400 mb-1">
+                        <span id="targetPercent">0% Mục tiêu</span>
+                        <span id="targetAmount">Mục tiêu: 0đ</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div id="targetProgressBar" class="bg-gradient-to-r from-emerald-400 to-emerald-600 h-2 rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- KHOẢNG TRỐNG ĐỂ TRÁNH CARD BỊ ĐÈ -->
+        <div class="h-24"></div>
+
+        <!-- ===== KHU VỰC CHẤM CÔNG ===== -->
+        <div class="px-5 mt-4 mb-2">
+
+            <!-- STATE: CHƯA ĐẾN GIỜ LÀM -->
+            <div id="state-not-in-shift" class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-xl shadow-sm border border-indigo-100">☕</div>
+                    <div>
+                        <p class="text-[11px] font-bold text-slate-500 uppercase">Trạng thái</p>
+                        <p class="text-sm font-black text-indigo-700">Đang nghỉ ngơi</p>
+                    </div>
+                </div>
+                <button class="bg-indigo-200 text-indigo-400 font-bold py-2 px-4 rounded-xl text-xs cursor-not-allowed">
+                    Chưa đến giờ
+                </button>
+            </div>
+
+            <!-- STATE: ĐANG TRONG CA — HOLD-TO-CONFIRM -->
+            <div id="state-in-shift" class="flex flex-col items-center">
+
+                <!-- Info ca -->
+                <div class="text-center mb-5 w-full bg-white rounded-2xl border border-slate-200 shadow-sm p-3">
+                    <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Ca hiện tại</p>
+                    <p class="text-sm font-black text-slate-800">☀️ Ca Sáng (08:00 - 12:00)</p>
+                    <p id="elapsedTime" class="text-xs font-bold text-emerald-600 mt-1">Đã làm: 2h 15m</p>
+                </div>
+
+                <!-- Nút Hold-to-Confirm -->
+                <div class="relative flex items-center justify-center mb-2">
+                    <button id="holdBtn" class="btn-checkout flex flex-col items-center justify-center border-4 border-white/60"
+                            aria-label="Giữ 3 giây để chấm công">
+                        <!-- SVG Progress Ring -->
+                        <svg class="absolute inset-0 w-full h-full" viewBox="0 0 160 160">
+                            <circle class="ring-track" cx="80" cy="80" r="70"/>
+                            <circle id="ringProgress" class="ring-progress" cx="80" cy="80" r="70"/>
+                        </svg>
+                        <!-- Nội dung nút -->
+                        <div class="btn-content flex flex-col items-center justify-center z-10">
+                            <span id="btnIcon" class="text-4xl mb-1 leading-none">⏱️</span>
+                            <span id="btnLabel" class="font-black text-base uppercase tracking-wider text-white">Checkout</span>
+                            <span id="btnSub" class="text-[10px] font-semibold text-white/80 mt-1">Giữ 3 giây</span>
+                        </div>
+                    </button>
+                </div>
+
+                <p id="holdHint" class="text-[11px] text-slate-400 font-medium italic text-center transition-all duration-300">
+                    Nhấn và giữ nút để kết thúc ca
+                </p>
+
+                <!-- Trạng thái Pending (ẩn ban đầu) -->
+                <div id="pendingCard" class="hidden w-full bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 text-center shadow-sm mt-4">
+                    <div class="text-2xl mb-2">⏳</div>
+                    <p class="font-black text-amber-800 text-sm">Đã Ghi Nhận</p>
+                    <p class="text-xs font-bold text-amber-600 mt-1">Chờ quản lý chốt ca</p>
+                    <div class="mt-3 bg-white rounded-xl border border-amber-200 p-3 text-left">
+                        <p class="text-[11px] text-slate-500 font-bold uppercase mb-1">Giờ bạn đã bấm</p>
+                        <p id="recordedTime" class="text-sm font-black text-slate-800">--:--</p>
+                    </div>
+                    <p class="text-[10px] text-amber-500 font-semibold mt-3 italic">* Quản lý sẽ xác nhận và chốt giờ chính thức cho bạn</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- DANH SÁCH CA SẮP TỚI -->
+        <div class="px-5 flex-1 pb-4 mt-4">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-black text-sm text-slate-800 uppercase tracking-wide">Ca làm sắp tới</h3>
+                <a href="lich.html" class="text-xs font-bold text-indigo-600 hover:underline">Xem lịch tuần →</a>
+            </div>
+
+            <div class="space-y-3" id="upcomingShiftsContainer">
+                <!-- Data will be loaded dynamically -->
+                <p class="text-xs text-slate-400 text-center py-4">Đang tải lịch làm sắp tới...</p>
+            </div>
+        </div>
+
+        <!-- THÔNG BÁO TỪ ADMIN -->
+        <div class="mx-5 mb-6 bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-3 items-start hidden" id="adminNoteBox">
+            <span class="text-amber-500 mt-0.5 text-lg">📌</span>
+            <div>
+                <h4 class="text-[10px] font-black text-amber-800 uppercase tracking-wide">Sếp Note Hôm Nay</h4>
+                <p class="text-xs text-amber-700 font-semibold mt-1" id="adminNoteText"></p>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <nav class="bg-white border-t border-slate-200 fixed bottom-0 w-full max-w-md flex justify-between px-6 py-3 pb-6 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <a href="index.html" class="flex flex-col items-center gap-1 text-indigo-600 transition">
+                <span class="text-xl relative">🏠
+                    <span class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-indigo-600 rounded-full"></span>
+                </span>
+                <span class="text-[10px] font-bold mt-1">Trang chủ</span>
+            </a>
+            <a href="lich.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-500 transition relative">
+                <span class="text-xl">📅</span><span class="text-[10px] font-bold mt-1">Chợ Ca</span>
+            </a>
+            <a href="luong.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-500 transition relative">
+                <span class="text-xl">💰</span><span class="text-[10px] font-bold mt-1">Bảng Lương</span>
+            </a>
+            <a href="ho-so.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-500 transition">
+                <span class="text-xl">👤</span><span class="text-[10px] font-bold mt-1">Hồ Sơ</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+    // ============================================================
+    // HOLD-TO-CONFIRM 3 GIÂY — LOGIC CHÍNH
+    // ============================================================
+    (function () {
+        const HOLD_DURATION = 3000; // 3 giây
+        const CIRCUMFERENCE = 2 * Math.PI * 70; // 439.82...
+
+        const btn         = document.getElementById('holdBtn');
+        const ring        = document.getElementById('ringProgress');
+        const btnIcon     = document.getElementById('btnIcon');
+        const btnLabel    = document.getElementById('btnLabel');
+        const btnSub      = document.getElementById('btnSub');
+        const holdHint    = document.getElementById('holdHint');
+        const pendingCard = document.getElementById('pendingCard');
+        const recordedTime= document.getElementById('recordedTime');
+
+        let holdTimer     = null;
+        let startTime     = null;
+        let rafId         = null;
+        let isDone        = false;
+
+        ring.style.strokeDasharray  = CIRCUMFERENCE;
+        ring.style.strokeDashoffset = CIRCUMFERENCE;
+
+        // --- Bắt đầu giữ ---
+        function onPressStart(e) {
+            if (isDone) return;
+            e.preventDefault();
+            startTime = performance.now();
+            btn.classList.add('btn-pressing');
+            btn.classList.remove('btn-checkout', 'btn-checkin');
+            holdHint.textContent = 'Tiếp tục giữ…';
+            animateRing();
+        }
+
+        // --- Thả tay (hủy) ---
+        function onPressEnd(e) {
+            if (isDone) return;
+            if (!startTime) return;
+            cancelAnimationFrame(rafId);
+            startTime = null;
+            // Reset về trạng thái ban đầu mượt
+            ring.style.transition = 'stroke-dashoffset 0.4s ease';
+            ring.style.strokeDashoffset = CIRCUMFERENCE;
+            setTimeout(() => { ring.style.transition = ''; }, 450);
+            btn.classList.remove('btn-pressing');
+            btn.classList.add('btn-checkout');
+            holdHint.textContent = 'Nhấn và giữ nút để kết thúc ca';
+            btnLabel.textContent = 'Checkout';
+            btnSub.textContent   = 'Giữ 3 giây';
+            btnIcon.textContent  = '⏱️';
+        }
+
+        // --- Vòng lặp animation ---
+        function animateRing() {
+            rafId = requestAnimationFrame(function loop(now) {
+                const elapsed  = now - startTime;
+                const progress = Math.min(elapsed / HOLD_DURATION, 1);
+                const offset   = CIRCUMFERENCE * (1 - progress);
+                ring.style.strokeDashoffset = offset;
+
+                // Cập nhật % trên nút
+                const pct = Math.round(progress * 100);
+                btnSub.textContent = pct < 100 ? `${pct}%` : '✓';
+
+                if (progress >= 1) {
+                    onSuccess();
+                } else {
+                    rafId = requestAnimationFrame(loop);
+                }
+            });
+        }
+
+        // --- Thành công (giữ đủ 3s) ---
+        function onSuccess() {
+            isDone = true;
+            startTime = null;
+            cancelAnimationFrame(rafId);
+
+            // Haptic feedback
+            if (navigator.vibrate) navigator.vibrate([80, 50, 80]);
+
+            // Đổi nút sang PENDING
+            btn.classList.remove('btn-pressing', 'btn-checkout');
+            btn.classList.add('btn-pending');
+            ring.style.strokeDashoffset = 0;
+            ring.style.stroke = 'rgba(255,255,255,0.6)';
+
+            btnIcon.textContent  = '⏳';
+            btnLabel.textContent = 'Đã Ghi';
+            btnSub.textContent   = 'Chờ duyệt';
+            btn.style.cursor     = 'not-allowed';
+
+            holdHint.textContent  = '';
+            holdHint.classList.add('hidden');
+
+            // Ghi nhận giờ
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            recordedTime.textContent = timeStr + ' — ' + now.toLocaleDateString('vi-VN');
+
+            // Hiện Pending Card
+            pendingCard.classList.remove('hidden');
+            pendingCard.classList.add('flex', 'flex-col');
+
+            // Thông báo
+            setTimeout(() => {
+                clockInAPI();
+            }, 300);
+        }
+
+        const clockInAPI = async () => {
+            try {
+                if (!window.currentAttendanceId) {
+                    UIUtils.showAlert('Không tìm thấy ca', 'Không tìm thấy ca làm hôm nay của bạn để chấm công.', false);
+                    return;
+                }
+                const payload = { attendanceId: window.currentAttendanceId, clientTime: new Date().toISOString() };
+                
+                const isCheckin = btn.classList.contains('btn-checkin');
+                const endpoint = isCheckin ? '/my/clock-in' : '/my/clock-out';
+                const actionName = isCheckin ? 'Check-in' : 'Check-out';
+
+                await ApiClient.post(endpoint, payload);
+
+                const timeStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                if (typeof UIUtils !== 'undefined') {
+                    UIUtils.showAlert(
+                        `Đã Ghi Nhận ${actionName} ⏳`,
+                        `Hệ thống đã ghi lại lúc ${timeStr}.\nQuản lý sẽ xem xét và chốt ca chính thức cho bạn.`,
+                        true
+                    );
+                }
+
+                await checkTodayShiftState();
+
+            } catch (error) {
+                console.error("Lỗi chấm công:", error);
+            }
+        };
+
+        // --- Gắn sự kiện (Touch + Mouse) ---
+        btn.addEventListener('mousedown',   onPressStart);
+        btn.addEventListener('mouseup',     onPressEnd);
+        btn.addEventListener('mouseleave',  onPressEnd);
+        btn.addEventListener('touchstart',  onPressStart, { passive: false });
+        btn.addEventListener('touchend',    onPressEnd,   { passive: false });
+        btn.addEventListener('touchcancel', onPressEnd,   { passive: false });
+
+        const checkTodayShiftState = async () => {
+            try {
+                const res = await ApiClient.get('/my/schedule');
+                if (res && res.data && res.data.length > 0) {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const todayReg = res.data.find(reg => reg.shift && reg.shift.shiftDate.split('T')[0] === todayStr && reg.status !== 'cancelled');
+                    
+                    if (todayReg) {
+                        const shift = todayReg.shift;
+                        const attendance = todayReg.attendances && todayReg.attendances[0];
+                        
+                        if (attendance) {
+                            window.currentAttendanceId = attendance.id;
+                            
+                            const actualStart = attendance.actualStart;
+                            const actualEnd = attendance.actualEnd;
+                            
+                            const shiftTypeMap = {
+                                'morning': 'Ca Sáng',
+                                'afternoon': 'Ca Chiều',
+                                'night': 'Ca Tối'
+                            };
+                            const shiftTypeLabel = shiftTypeMap[shift.shiftType] || shift.shiftType;
+                            document.querySelector('#state-in-shift p.text-sm').innerText = `☀️ ${shiftTypeLabel} (${shift.startTime} - ${shift.endTime})`;
+                            
+                            if (actualStart && actualEnd) {
+                                document.getElementById('state-not-in-shift').classList.remove('hidden');
+                                document.getElementById('state-in-shift').classList.add('hidden');
+                                document.querySelector('#state-not-in-shift p.text-indigo-700').innerText = 'Đã hoàn thành ca hôm nay';
+                                document.querySelector('#state-not-in-shift button').innerText = 'Hoàn thành';
+                            } else if (actualStart) {
+                                document.getElementById('state-not-in-shift').classList.add('hidden');
+                                document.getElementById('state-in-shift').classList.remove('hidden');
+                                document.getElementById('state-in-shift').classList.add('flex');
+                                
+                                btn.className = 'btn-checkout flex flex-col items-center justify-center border-4 border-white/60';
+                                btnIcon.textContent = '⏱️';
+                                btnLabel.textContent = 'Checkout';
+                                btnSub.textContent = 'Giữ 3 giây';
+                                holdHint.textContent = 'Nhấn và giữ nút để kết thúc ca';
+                                
+                                const start = new Date(actualStart);
+                                const diffMs = new Date() - start;
+                                const diffHrs = Math.floor(diffMs / 3600000);
+                                const diffMins = Math.floor((diffMs % 3600000) / 60000);
+                                document.getElementById('elapsedTime').innerText = `Đã làm: ${diffHrs}h ${diffMins}m`;
+                            } else {
+                                document.getElementById('state-not-in-shift').classList.add('hidden');
+                                document.getElementById('state-in-shift').classList.remove('hidden');
+                                document.getElementById('state-in-shift').classList.add('flex');
+                                
+                                btn.className = 'btn-checkin flex flex-col items-center justify-center border-4 border-white/60';
+                                btnIcon.textContent = '⏱️';
+                                btnLabel.textContent = 'Check-in';
+                                btnSub.textContent = 'Giữ 3 giây';
+                                holdHint.textContent = 'Nhấn và giữ nút để bắt đầu ca';
+                                document.getElementById('elapsedTime').innerText = `Chưa bắt đầu ca làm`;
+                            }
+                            return;
+                        }
+                    }
+                }
+                
+                document.getElementById('state-not-in-shift').classList.remove('hidden');
+                document.getElementById('state-in-shift').classList.add('hidden');
+                document.querySelector('#state-not-in-shift p.text-indigo-700').innerText = 'Đang nghỉ ngơi';
+                document.querySelector('#state-not-in-shift button').innerText = 'Chưa đến giờ';
+                
+            } catch (err) {
+                console.error("Lỗi checkTodayShiftState:", err);
+            }
+        };
+
+        checkTodayShiftState();
+
+    })();
+    </script>
+    <script src="../assets/js/employee/index.js"></script>
+</body>
+</html>

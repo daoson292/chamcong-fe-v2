@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bảng Lương - App Nhân Viên</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .chevron-icon { transition: transform 0.2s ease-in-out; }
+        .accordion-open .chevron-icon { transform: rotate(180deg); }
+        
+        /* Cột biểu đồ Lương */
+        .bar-chart-col {
+            transition: height 1s ease-out;
+        }
+    </style>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/utils.js"></script>
+</head>
+<body class="bg-slate-200 text-slate-800 font-sans flex justify-center">
+
+    <div class="w-full max-w-md bg-slate-50 min-h-screen relative shadow-2xl pb-24 overflow-x-hidden flex flex-col">
+        
+        <!-- HEADER -->
+        <header class="bg-indigo-600 text-white px-5 py-4 sticky top-0 z-40 flex justify-between items-center shadow-md">
+            <div>
+                <h1 class="font-black text-lg tracking-wide">⚡ XƯỞNG CÁP</h1>
+                <p class="text-[11px] font-medium opacity-80">Sao kê thu nhập</p>
+            </div>
+            <button class="relative p-2">
+                <span class="text-2xl">💰</span>
+            </button>
+        </header>
+
+        <!-- TỔNG KẾT TÀI CHÍNH (DASHBOARD) -->
+        <div class="p-4 bg-indigo-600 rounded-b-3xl shadow-sm pb-6">
+            <div class="flex justify-between items-center mb-3 text-white/80 px-2">
+                <span class="text-xs font-bold uppercase tracking-wider" id="currentPeriodLabel">Kỳ lương</span>
+                <select id="periodSelect" class="bg-indigo-700/50 border border-indigo-500/50 text-white text-[10px] font-bold rounded px-2 py-1 outline-none">
+                    <!-- Dynamic Options -->
+                </select>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-5 shadow-lg relative overflow-hidden">
+                <div class="text-center border-b border-slate-100 pb-4 mb-4">
+                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Thực nhận dự tính</div>
+                    <div class="text-3xl font-black text-indigo-600" id="netSalaryVal">0<span class="text-base text-slate-400 ml-1">đ</span></div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-left">
+                        <div class="text-[9px] text-slate-400 font-bold uppercase mb-1">Đã nhận</div>
+                        <div class="text-sm font-black text-emerald-500" id="amountPaidVal">+ 0đ</div>
+                    </div>
+                    <div class="text-right border-l border-slate-100 pl-4">
+                        <div class="text-[9px] text-slate-400 font-bold uppercase mb-1">Chưa trả</div>
+                        <div class="text-sm font-black text-orange-500" id="amountOwedVal">0đ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BIỂU ĐỒ THU NHẬP (GAMIFICATION) -->
+        <div class="px-5 pt-4 -mt-2">
+            <h3 class="font-bold text-slate-700 text-[11px] uppercase tracking-wider mb-3">Biểu đồ thu nhập 3 tháng gần nhất</h3>
+            <div id="chartContainer" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex items-end justify-around h-32 relative">
+                <!-- Vạch đích ảo -->
+                <div class="absolute top-4 left-4 right-4 border-t border-dashed border-emerald-300 z-0"></div>
+                <div class="absolute top-2 right-4 text-[9px] text-emerald-500 font-bold z-0">Mục tiêu 5tr</div>
+                <!-- Dynamic bars render here -->
+            </div>
+        </div>
+
+        <!-- CHI TIẾT SAO KÊ TỪNG NGÀY -->
+        <div class="px-4 py-5 flex-1 overflow-y-auto">
+            <h3 class="font-bold text-slate-700 text-[11px] uppercase tracking-wider px-1 mb-3 flex justify-between items-center">
+                <span>Chi tiết dòng tiền</span>
+                <button class="text-indigo-600 normal-case font-bold" id="btnOverallDispute">Khiếu nại tổng 🚩</button>
+            </h3>
+
+            <div class="space-y-3" id="transactionList">
+                <!-- Dynamic Accordion Items render here -->
+            </div>
+        </div>
+
+        <!-- BOTTOM NAV (4 nút) -->
+        <nav class="bg-white border-t border-slate-200 fixed bottom-0 w-full max-w-md flex justify-between px-6 py-3 pb-6 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <a href="index.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-500 transition">
+                <span class="text-xl">🏠</span><span class="text-[10px] font-bold mt-1">Trang chủ</span>
+            </a>
+            <a href="lich.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-500 transition relative">
+                <span class="text-xl">📅</span><span class="text-[10px] font-bold mt-1">Chợ Ca</span>
+            </a>
+            <a href="luong.html" class="flex flex-col items-center gap-1 text-indigo-600 transition relative">
+                <span class="text-xl">💰</span>
+                <span class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-indigo-600 rounded-full"></span>
+                <span class="text-[10px] font-bold mt-1">Bảng Lương</span>
+            </a>
+            <a href="ho-so.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-500 transition">
+                <span class="text-xl">👤</span><span class="text-[10px] font-bold mt-1">Hồ Sơ</span>
+            </a>
+        </nav>
+
+        <!-- POPUP KHIẾU NẠI (DÙNG CHUNG FORM VỚI LỊCH) -->
+        <div class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[99] px-4 modal-overlay" id="disputeModal">
+            <div class="bg-white w-full rounded-2xl p-5 relative shadow-2xl transform scale-95 transition-transform duration-200" id="disputeBox">
+                <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
+                <h3 class="font-bold text-lg text-slate-800 mb-1">Khiếu nại bảng lương</h3>
+                <p class="text-xs text-slate-500 font-semibold mb-5">Bạn thấy sai sót về tiền nong? Báo sếp ngay!</p>
+                
+                <div class="mb-4">
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Bạn muốn khiếu nại về?</label>
+                    <select id="disputeReason" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold text-slate-700 outline-none focus:border-indigo-500">
+                        <option value="">-- Chọn vấn đề --</option>
+                        <option value="1">Sai mức lương cơ bản</option>
+                        <option value="2">Thiếu tiền thưởng / Phụ cấp</option>
+                        <option value="3">Phạt trừ tiền vô lý</option>
+                        <option value="4">Đã bank nhưng chưa nhận được</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Mô tả chi tiết</label>
+                    <textarea id="disputeDetail" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold text-slate-700 min-h-[100px]" placeholder="VD: Sếp ơi lương em 25k/h mà bảng này tính có 20k ạ..."></textarea>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button class="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-xl btn-close-modal">Hủy</button>
+                    <button class="flex-1 bg-orange-500 text-white font-bold py-3 rounded-xl shadow-md" id="btnSubmitDispute">Gửi Khiếu Nại</button>
+                </div>
+            </div>
+        </div>
+
+        </div>
+    </div>
+
+    <!-- NỐI JS -->
+    <script src="../assets/js/employee/luong.js"></script>
+</body>
+</html>

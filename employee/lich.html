@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chợ Ca - App Nhân Viên</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hot-shift-border { animation: pulse-border 1.5s infinite; }
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .blink-text { animation: blink 2s linear infinite; }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/utils.js"></script>
+</head>
+<body class="bg-slate-200 text-slate-800 font-sans flex justify-center">
+
+    <div class="w-full max-w-md bg-slate-50 min-h-screen relative shadow-2xl pb-24 flex flex-col">
+        
+        <!-- HEADER -->
+        <header class="bg-indigo-600 text-white px-5 py-4 sticky top-0 z-40 flex justify-between items-center shadow-md">
+            <div>
+                <h1 class="font-black text-lg tracking-wide flex items-center gap-2">🛒 CHỢ CA LÀM</h1>
+                <p class="text-[11px] font-medium opacity-80">Đăng ký lịch làm việc</p>
+            </div>
+            <button class="bg-white/20 hover:bg-white/30 text-xs font-bold px-3 py-1.5 rounded-full transition border border-white/30">
+                Lịch sử
+            </button>
+        </header>
+
+        <!-- DEV TOGGLE BUTTONS -->
+        <div class="bg-slate-800 text-white text-[10px] p-2 flex justify-center gap-3 relative z-50">
+            <span class="font-bold">Dev State:</span>
+            <button onclick="changeState('OPEN_NO_HOT')" class="underline">Mở (Ko Hot)</button>
+            <button onclick="changeState('CLOSED_WITH_HOT')" class="underline text-red-300">Đóng (Có Hot)</button>
+            <button onclick="changeState('CLOSED_NO_HOT')" class="underline text-slate-400">Đóng Hẳn</button>
+        </div>
+
+        <!-- PHẦN 1: BỐI CẢNH THỜI GIAN (ALWAYS ON) -->
+        <div class="px-4 mt-4 shrink-0">
+            <div class="bg-white/70 backdrop-blur-md rounded-2xl border border-slate-200 p-4 shadow-sm flex justify-between items-center relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 text-6xl opacity-10 transform rotate-12">📅</div>
+                <div>
+                    <h2 class="font-black text-slate-800 text-sm" id="weekLabelText">Tuần --/-- - --/--</h2>
+                    <p class="text-xs font-bold text-slate-500 mt-0.5" id="todayText">Hôm nay: <span class="text-indigo-600">Thứ - (--/--)</span></p>
+                </div>
+                <div class="bg-indigo-50 text-indigo-700 font-black text-xs px-3 py-2 rounded-xl border border-indigo-100 flex flex-col items-center">
+                    <span class="text-lg leading-none mb-0.5" id="registeredCountVal">0</span>
+                    <span class="text-[9px] uppercase tracking-wide">Ca đã đk</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- KHU VỰC HIỂN THỊ ĐỘNG DỰA TRÊN STATE -->
+        <div id="dynamicContent" class="px-4 py-4 flex-1 space-y-4">
+            
+            <!-- PHẦN 2: CA HOT (BYPASS STATE) -->
+            <div id="hotShiftBlock" class="hidden bg-white rounded-xl shadow-md border-2 border-red-500 hot-shift-border relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-black px-3 py-1 rounded-bl-lg shadow-sm">
+                    🔥 HOT - Bổ sung gấp!
+                </div>
+                <div class="p-4 pt-5 bg-gradient-to-br from-red-50 to-orange-50">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-xs font-bold text-slate-600 bg-white px-2 py-0.5 rounded shadow-sm border border-slate-200">Hôm nay</span>
+                    </div>
+                    <h3 class="font-black text-slate-800 text-lg mb-1">☀️ Ca Chiều (13:30 - 17:30)</h3>
+                    <p class="text-[11px] font-bold text-orange-600 mb-3 blink-text">👀 Khang và 3 người khác đang xem ca này...</p>
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="text-[11px] font-bold text-slate-500">Đã đk: <span class="text-slate-800">4/5 người</span></div>
+                        <button onclick="claimHotShift(this)" class="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 text-white font-black py-2.5 px-5 rounded-lg text-sm shadow-lg shadow-red-500/30 transition-transform transform active:scale-95">
+                            Giật Ca Ngay ⚡
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHẦN 3: CLOSED BANNER -->
+            <div id="closedBannerBlock" class="hidden bg-slate-100 border border-slate-200 rounded-2xl p-6 text-center shadow-inner mt-2">
+                <div class="text-4xl mb-3 grayscale opacity-60">🏖️</div>
+                <h3 class="font-bold text-slate-600 mb-1">Đợt đăng ký đã đóng</h3>
+                <p class="text-xs text-slate-500 font-medium">Lịch làm việc của tuần này đã được chốt. Bạn không thể tự hủy hoặc đăng ký thêm ca bình thường nữa.</p>
+            </div>
+
+            <!-- PHẦN 4: NORMAL SHIFTS -->
+            <div id="normalShiftsBlock" class="hidden space-y-4">
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 relative">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-400 mb-0.5">Ngày mai (13/05)</p>
+                            <h3 class="font-bold text-slate-800 text-base">🌤️ Ca Sáng (08:00 - 12:00)</h3>
+                        </div>
+                        <span class="bg-emerald-100 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded shadow-sm">Còn 2 chỗ</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3 border-t border-slate-100 pt-3">
+                        <div class="text-[11px] font-bold text-slate-500">Đã đk: <span class="text-slate-800">3/5 người</span></div>
+                        <button class="bg-indigo-50 text-indigo-700 font-bold py-2 px-6 rounded-lg text-xs border border-indigo-200">Đăng ký</button>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-100 rounded-xl border border-slate-200 shadow-sm p-4 relative opacity-60">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-400 mb-0.5">Ngày mai (13/05)</p>
+                            <h3 class="font-bold text-slate-600 text-base">🌙 Ca Tối (18:00 - 22:00)</h3>
+                        </div>
+                        <span class="bg-slate-200 text-slate-500 text-[10px] font-black px-2 py-0.5 rounded">FULL</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3 border-t border-slate-200 pt-3">
+                        <div class="text-[11px] font-bold text-slate-500">Đã đk: <span class="text-slate-800">4/4 người</span></div>
+                        <button class="bg-slate-200 text-slate-400 font-bold py-2 px-6 rounded-lg text-xs cursor-not-allowed">🔒 Đã chốt</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <nav class="bg-white border-t border-slate-200 fixed bottom-0 w-full max-w-md flex justify-between px-6 py-3 pb-6 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <a href="index.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-500 transition">
+                <span class="text-xl relative">🏠</span>
+                <span class="text-[10px] font-bold mt-1">Trang chủ</span>
+            </a>
+            <a href="lich.html" class="flex flex-col items-center gap-1 text-indigo-600 transition relative">
+                <span class="text-xl">📅</span>
+                <span class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-indigo-600 rounded-full"></span>
+                <span class="text-[10px] font-bold mt-1">Chợ Ca</span>
+            </a>
+            <a href="luong.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-500 transition">
+                <span class="text-xl">💰</span><span class="text-[10px] font-bold mt-1">Bảng Lương</span>
+            </a>
+            <a href="ho-so.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-500 transition">
+                <span class="text-xl">👤</span><span class="text-[10px] font-bold mt-1">Hồ Sơ</span>
+            </a>
+        </nav>
+    </div>
+
+    <script src="../assets/js/employee/lich.js"></script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Admin Xưởng</title>
+    <!-- Nhúng Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../assets/js/utils.js"></script>
+</head>
+
+<body class="bg-slate-50 text-slate-800 font-sans pb-20 relative">
+
+    <!-- Thanh Menu Top -->
+    <nav
+        class="bg-white border-b border-slate-200 px-5 md:px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
+        <div class="flex items-center gap-6 md:gap-10">
+            <div class="text-xl font-black text-indigo-600 tracking-wide">⚡ XƯỞNG CÁP</div>
+            <div class="hidden md:flex gap-6 font-semibold text-sm">
+                <a href="index.html" class="text-indigo-600 border-b-2 border-indigo-600 pb-1">Tổng Quan</a>
+                <a href="lich-tuan.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Lịch Tuần</a>
+                <a href="cham-cong.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Điểm Danh</a>
+                <a href="duyet-cong.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Chốt Ca</a>
+                <a href="cho-ca.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Chợ Ca</a>
+                <a href="chot-luong.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Lương</a>
+                <a href="nhan-su.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Nhân Sự</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 text-sm font-bold">
+            <span class="hidden md:block">Chào, Sếp Sơn</span>
+            <a href="../login.html"
+                class="hidden md:block bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg transition">Đăng
+                xuất</a>
+            <button id="btnHamburger" class="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition"
+                aria-label="Menu" onclick="toggleMobileNav()">
+                <svg id="iconHamburger" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <svg id="iconClose" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+    <!-- Mobile Drawer Overlay -->
+    <div id="mobileNavOverlay" class="fixed inset-0 bg-slate-900/50 z-[998] hidden md:hidden"
+        onclick="toggleMobileNav()"></div>
+    <!-- Mobile Drawer Panel -->
+    <div id="mobileNavDrawer"
+        class="fixed top-0 left-0 h-full w-72 bg-white z-[999] shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden flex flex-col">
+        <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div class="text-lg font-black text-indigo-600">⚡ XƯỞNG CÁP</div>
+            <button onclick="toggleMobileNav()" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <nav class="flex flex-col p-4 gap-1 flex-1 overflow-y-auto">
+            <a href="index.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-indigo-600 bg-indigo-50">📊
+                Tổng Quan</a>
+            <a href="lich-tuan.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition">📅
+                Lịch Tuần</a>
+            <a href="cham-cong.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition">📋
+                Điểm Danh</a>
+            <a href="duyet-cong.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition">✅
+                Chốt Ca</a>
+            <a href="cho-ca.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition">🛒
+                Chợ Ca</a>
+            <a href="chot-luong.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition">💰
+                Lương</a>
+            <a href="nhan-su.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition">👥
+                Nhân Sự</a>
+        </nav>
+        <div class="p-4 border-t border-slate-100">
+            <div class="text-xs font-bold text-slate-400 mb-2">Chào, Sếp Sơn</div>
+            <a href="../login.html"
+                class="flex items-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 px-4 py-3 rounded-xl font-bold text-sm transition">🚪
+                Đăng xuất</a>
+        </div>
+    </div>
+
+    <!-- Nội dung Dashboard -->
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <h2 class="text-2xl font-bold mb-6">Báo Cáo Nhanh Hôm Nay</h2>
+
+        <!-- 4 Thẻ thống kê (Chỉ số) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                <h3 class="text-sm font-bold text-slate-500 mb-2">Quân số ca hiện tại</h3>
+                <div class="text-4xl font-black text-indigo-600 mb-1">12<span
+                        class="text-lg text-slate-400 font-semibold">/15</span></div>
+                <p class="text-xs font-semibold text-slate-400">Đang làm việc</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition">
+                <h3 class="text-sm font-bold text-slate-500 mb-2">Quỹ lương tạm tính</h3>
+                <div class="text-4xl font-black text-emerald-500 mb-1">2,450K</div>
+                <p class="text-xs font-semibold text-slate-400">VNĐ / Ngày hôm nay</p>
+            </div>
+
+            <div
+                class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-red-100 rounded-bl-[100px] -z-10"></div>
+                <h3 class="text-sm font-bold text-slate-500 mb-2">Vắng / Bùng ca</h3>
+                <div class="text-4xl font-black text-red-500 mb-1">1</div>
+                <p class="text-xs font-semibold text-slate-400">Cần xử lý & phạt</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition relative overflow-hidden cursor-pointer"
+                onclick="document.getElementById('ticketSection').scrollIntoView({behavior: 'smooth'})">
+                <div class="absolute top-0 right-0 w-16 h-16 bg-orange-100 rounded-bl-[100px] -z-10"></div>
+                <h3 class="text-sm font-bold text-slate-500 mb-2">Khiếu nại đang chờ</h3>
+                <div class="text-4xl font-black text-orange-500 mb-1">2</div>
+                <p class="text-xs font-semibold text-orange-400 animate-pulse">Cần giải quyết ngay</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Cột Trái: Thao tác nhanh (Chiếm 1 phần) -->
+            <div class="lg:col-span-1">
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm sticky top-24">
+                    <h3 class="text-lg font-bold mb-5 flex items-center gap-2"><span class="text-xl">⚡</span> Thao tác
+                        nhanh</h3>
+                    <div class="flex flex-col gap-3">
+                        <button onclick="window.location.href='cham-cong.html'"
+                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-lg shadow-sm transition flex items-center justify-between group">
+                            <span class="flex items-center gap-2">⏱️ Điểm danh ca này</span>
+                            <span class="group-hover:translate-x-1 transition">→</span>
+                        </button>
+                        <button onclick="window.location.href='lich-tuan.html'"
+                            class="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold py-3.5 px-4 rounded-lg transition flex items-center justify-between group">
+                            <span class="flex items-center gap-2">📅 Xếp lịch tuần mới</span>
+                            <span class="group-hover:translate-x-1 transition text-slate-400">→</span>
+                        </button>
+                        <button onclick="window.location.href='cho-ca.html'"
+                            class="w-full bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-bold py-3.5 px-4 rounded-lg transition flex items-center justify-between group">
+                            <span class="flex items-center gap-2">🚀 Mở Đợt Đăng Ký (Chợ ca)</span>
+                            <span class="group-hover:translate-x-1 transition text-emerald-500">→</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột Phải: Bảng Việc Cần Xử Lý (Chiếm 2 phần) -->
+            <div class="lg:col-span-2" id="ticketSection">
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-slate-50 border-b border-slate-200 p-5 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">Việc Cần Xử Lý (Ticket)</h3>
+                            <p class="text-xs font-semibold text-slate-500 mt-0.5">Giải quyết khiếu nại giờ làm và phạt
+                                bùng ca.</p>
+                        </div>
+                        <span class="bg-orange-100 text-orange-600 font-bold text-xs px-3 py-1 rounded-full">2 chờ xử
+                            lý</span>
+                    </div>
+
+                    <div class="divide-y divide-slate-100">
+
+                        <!-- Ticket 1 (Bùng ca) -->
+                        <div class="p-5 hover:bg-slate-50 transition">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="bg-red-100 text-red-600 text-[10px] uppercase font-black px-2 py-1 rounded">Hệ
+                                        thống</span>
+                                    <span class="font-bold text-slate-800">Xử lý phạt Bùng Ca</span>
+                                </div>
+                                <span class="text-xs text-slate-400 font-bold">Hôm nay, 08:30</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-4 font-medium">Nhân viên <span class="font-bold">Lê Văn
+                                    Hào</span> vắng mặt không lý do ca Sáng nay. Vui lòng xác nhận lý do và chốt phạt.
+                            </p>
+                            <div class="flex gap-2">
+                                <button onclick="window.location.href='cham-cong.html'"
+                                    class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs px-4 py-2 rounded transition">Ghi
+                                    phạt ngay</button>
+                                <button
+                                    class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs px-4 py-2 rounded transition">Bỏ
+                                    qua (Có phép)</button>
+                            </div>
+                        </div>
+
+                        <!-- Ticket 2 (Khiếu nại giờ) -->
+                        <div class="p-5 hover:bg-slate-50 transition">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="bg-orange-100 text-orange-600 text-[10px] uppercase font-black px-2 py-1 rounded">Khiếu
+                                        nại</span>
+                                    <span class="font-bold text-slate-800">Hoàng Văn Tuấn</span>
+                                </div>
+                                <span class="text-xs text-slate-400 font-bold">Hôm qua, 22:15</span>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-4 font-medium"><span class="italic text-slate-500">"Sếp
+                                    ơi ca tối qua em làm full 4 tiếng đến 22h mới về mà sếp lại chấm em làm có 3 tiếng
+                                    ạ. Sếp check lại camera giúp em nhé."</span></p>
+                            <div
+                                class="bg-slate-50 border border-slate-200 rounded p-3 mb-4 flex items-center justify-between">
+                                <div class="text-xs">
+                                    <span class="text-slate-500 font-bold">Ca bị khiếu nại:</span> <span
+                                        class="text-slate-800 font-bold ml-1">Tối (10/05/2026)</span>
+                                </div>
+                                <div class="text-xs">
+                                    <span class="text-slate-500 font-bold">Giờ Admin chốt:</span> <span
+                                        class="text-red-500 font-bold ml-1">18:00 - 21:00 (3h)</span>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button
+                                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2 rounded transition"
+                                    onclick="alert('Tính năng này sẽ mở Modal sửa giờ giống Tab Chấm Công')">Kiểm tra &
+                                    Sửa giờ</button>
+                                <button
+                                    class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs px-4 py-2 rounded transition border border-slate-200">Bác
+                                    bỏ</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Nhúng JS -->
+    <script src="../assets/js/admin/index.js"></script>
+    <script>
+        function toggleMobileNav() {
+            const drawer = document.getElementById('mobileNavDrawer');
+            const overlay = document.getElementById('mobileNavOverlay');
+            const iconH = document.getElementById('iconHamburger');
+            const iconC = document.getElementById('iconClose');
+            const isOpen = !drawer.classList.contains('-translate-x-full');
+            drawer.classList.toggle('-translate-x-full', isOpen);
+            overlay.classList.toggle('hidden', isOpen);
+            if (iconH && iconC) { iconH.classList.toggle('hidden', !isOpen); iconC.classList.toggle('hidden', isOpen); }
+        }
+    </script>
+</body>
+
+</html>

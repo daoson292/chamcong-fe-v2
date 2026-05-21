@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duyệt Công - Admin Xưởng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <style>
+        .hide-scroll::-webkit-scrollbar { width: 6px; }
+        .hide-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .status-pending  { background:#fef3c7; color:#92400e; border-color:#fde68a; }
+        .status-approved { background:#d1fae5; color:#065f46; border-color:#6ee7b7; }
+        .status-rejected { background:#fee2e2; color:#991b1b; border-color:#fca5a5; }
+        /* Card layout trên mobile */
+        @media (max-width: 768px) {
+            .desktop-table { display: none; }
+            .mobile-cards  { display: block; }
+        }
+        @media (min-width: 769px) {
+            .desktop-table { display: block; }
+            .mobile-cards  { display: none; }
+        }
+        .time-input {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 4px 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            background: #f8fafc;
+            outline: none;
+            width: 90px;
+            transition: border-color 0.2s;
+        }
+        .time-input:focus { border-color: #6366f1; background: #fff; }
+        .time-input.edited { border-color: #f59e0b; background: #fffbeb; color: #92400e; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans pb-20">
+
+    <!-- NAVBAR -->
+    <nav class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shadow-sm sticky top-0 z-50">
+        <div class="flex items-center gap-10">
+            <div class="text-xl font-black text-indigo-600 tracking-wide">⚡ XƯỞNG CÁP</div>
+            <div class="hidden md:flex gap-6 font-semibold text-sm">
+                <a href="index.html"      class="text-slate-500 hover:text-indigo-600 transition pb-1">Tổng Quan</a>
+                <a href="lich-tuan.html"  class="text-slate-500 hover:text-indigo-600 transition pb-1">Lịch Tuần</a>
+                <a href="cham-cong.html"  class="text-slate-500 hover:text-indigo-600 transition pb-1">Điểm Danh</a>
+                <a href="duyet-cong.html" class="text-indigo-600 border-b-2 border-indigo-600 pb-1">Chốt Ca</a>
+                <a href="cho-ca.html"     class="text-slate-500 hover:text-indigo-600 transition pb-1">Chợ Ca</a>
+                <a href="chot-luong.html" class="text-slate-500 hover:text-indigo-600 transition pb-1">Lương</a>
+                <a href="nhan-su.html"    class="text-slate-500 hover:text-indigo-600 transition pb-1">Nhân Sự</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 text-sm font-bold">
+            <span>Chào, Sếp Sơn</span>
+            <a href="../login.html" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg transition">Đăng xuất</a>
+        </div>
+    </nav>
+
+    <div class="max-w-[1400px] mx-auto px-4 py-8">
+
+        <!-- HEADER + FILTER -->
+        <div class="flex flex-wrap justify-between items-end gap-4 mb-6">
+            <div>
+                <h2 class="text-2xl font-bold mb-1">Duyệt Công — Chốt Ca</h2>
+                <p class="text-slate-500 text-sm font-semibold">Xem xét, chỉnh sửa và xác nhận giờ làm nhân viên tự báo cáo qua app.</p>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap">
+                <!-- Filter ngày -->
+                <input type="date" id="filterDate" class="bg-white border border-slate-200 rounded-lg px-4 py-2 font-bold text-sm focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm" value="2026-05-19">
+                <select id="filterStatus" class="bg-white border border-slate-200 rounded-lg px-4 py-2 font-bold text-sm text-slate-600 focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="pending" selected>⏳ Chờ duyệt</option>
+                    <option value="approved">✅ Đã duyệt</option>
+                    <option value="rejected">❌ Đã từ chối</option>
+                </select>
+                <!-- Bulk approve -->
+                <button id="btnApproveAll" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-5 rounded-lg shadow-sm transition text-sm flex items-center gap-2">
+                    ✅ Duyệt tất cả đang chờ
+                </button>
+            </div>
+        </div>
+
+        <!-- COUNTER BADGES -->
+        <div class="flex gap-3 mb-6 flex-wrap">
+            <div class="bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 flex items-center gap-3">
+                <span class="text-2xl font-black text-amber-600" id="cntPending">3</span>
+                <div>
+                    <p class="text-[11px] font-bold text-amber-700 uppercase">Chờ duyệt</p>
+                    <p class="text-[10px] text-amber-500 font-semibold">Cần xử lý</p>
+                </div>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-5 py-3 flex items-center gap-3">
+                <span class="text-2xl font-black text-emerald-600" id="cntApproved">5</span>
+                <div>
+                    <p class="text-[11px] font-bold text-emerald-700 uppercase">Đã duyệt</p>
+                    <p class="text-[10px] text-emerald-500 font-semibold">Hôm nay</p>
+                </div>
+            </div>
+            <div class="bg-red-50 border border-red-200 rounded-xl px-5 py-3 flex items-center gap-3">
+                <span class="text-2xl font-black text-red-500" id="cntRejected">1</span>
+                <div>
+                    <p class="text-[11px] font-bold text-red-700 uppercase">Từ chối</p>
+                    <p class="text-[10px] text-red-500 font-semibold">Hôm nay</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== DESKTOP TABLE ====== -->
+        <div class="desktop-table bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <table class="w-full text-left border-collapse" id="timesheetTable">
+                <thead class="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-bold">
+                    <tr>
+                        <th class="py-4 px-5">Nhân viên</th>
+                        <th class="py-4 px-5">Ca làm</th>
+                        <th class="py-4 px-5 text-center">Giờ NV báo cáo</th>
+                        <th class="py-4 px-5 text-center">Giờ Admin chốt <span class="text-indigo-400 normal-case font-semibold">(có thể sửa)</span></th>
+                        <th class="py-4 px-5 text-center">Trạng thái</th>
+                        <th class="py-4 px-5 text-right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm font-semibold text-slate-700 divide-y divide-slate-100" id="tbodyDesktop">
+                    <!-- JS render -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ====== MOBILE CARDS ====== -->
+        <div class="mobile-cards space-y-4" id="mobileCards">
+            <!-- JS render -->
+        </div>
+
+    </div>
+
+    <!-- MODAL TỪ CHỐI -->
+    <div class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-[999] modal-overlay" id="rejectModal">
+        <div class="bg-white p-6 rounded-2xl w-[420px] max-w-[95vw] shadow-xl border border-slate-200">
+            <h3 class="font-black text-lg text-slate-800 mb-1 flex items-center gap-2">❌ Từ chối / Ghi phạt</h3>
+            <p class="text-xs text-red-500 font-bold mb-4" id="rejectEmpName">Nhân viên: ...</p>
+            <label class="block text-[12px] font-bold text-slate-500 uppercase mb-2">Lý do từ chối (Gửi về app nhân viên):</label>
+            <textarea id="rejectReason" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-red-400 outline-none font-semibold text-sm placeholder-slate-400 mb-4" rows="3" placeholder="Ví dụ: Camera ghi nhận bạn ra về lúc 21:15, không phải 22:00..."></textarea>
+            <div class="flex gap-3">
+                <button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-lg transition btn-close-modal">Hủy</button>
+                <button id="confirmReject" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition shadow-sm">Xác nhận Từ chối</button>
+            </div>
+        </div>
+    </div>
+    <script src="../assets/js/admin/duyet-cong.js"></script>
+<script src="../assets/js/admin/mobile-nav.js"></script>
+</body>
+</html>
